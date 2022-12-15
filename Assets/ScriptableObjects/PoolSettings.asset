@@ -14,14 +14,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   PoolEntries:
   - id: terrain
-    prefab: {fileID: 2438436343535714281, guid: a61fada22ef588e4f80f969a70fc4651, type: 3}
+    prefab: {fileID: 3561961307481040097, guid: f7b49374f30d9364ab0bef9626a0c407, type: 3}
     size: 15
     parentTag: Terrain
   - id: obstacle
-    prefab: {fileID: 2438436343535714281, guid: 780a14fbb86269b43bc0dba149524a2e, type: 3}
+    prefab: {fileID: 3561961307481040097, guid: 08af9ee0cea2831458ddd9629b06718b, type: 3}
     size: 3
     parentTag: Obstacles
   - id: pou
-    prefab: {fileID: 2438436343535714281, guid: ed5299179bc98494fa5dac7ad3a6ed1d, type: 3}
+    prefab: {fileID: 4392907085281444532, guid: bcc55514f12a1554cb85b036888ce5a5, type: 3}
     size: 1
     parentTag: Untagged
