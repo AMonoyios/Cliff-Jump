@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3c06d389132b0be4aa5244695d0efb5a, type: 3}
+  m_Name: PoolSettings
+  m_EditorClassIdentifier: 
+  PoolEntries:
+  - id: terrain
+    prefab: {fileID: 2438436343535714281, guid: a61fada22ef588e4f80f969a70fc4651, type: 3}
+    size: 15
+    parentTag: Terrain
+  - id: obstacle
+    prefab: {fileID: 2438436343535714281, guid: 780a14fbb86269b43bc0dba149524a2e, type: 3}
+    size: 3
+    parentTag: Obstacles
+  - id: pou
+    prefab: {fileID: 2438436343535714281, guid: ed5299179bc98494fa5dac7ad3a6ed1d, type: 3}
+    size: 1
+    parentTag: Untagged
