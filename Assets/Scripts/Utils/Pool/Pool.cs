@@ -1,49 +1,31 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Utils;
 
 public class Pool
 {
-    private const string untagged = "Untagged";
-
-    private List<PoolSetupSettingsSO.PoolEntry> entries;
     private static Dictionary<string, Queue<GameObject>> poolDictionary;
 
-    public Pool(PoolSetupSettingsSO settings)
+    public Pool()
 	{
-        this.entries = new(settings.PoolEntries);
         poolDictionary = new();
     }
 
     public bool Init()
 	{
-        if (entries.Count == 0)
+        if (poolDictionary == null)
         {
-            Debug.LogError("Pool is not populated!");
+            Debug.LogError("PoolDictionary is null!");
             return false;
 		}
-		else
-		{
-            foreach (PoolSetupSettingsSO.PoolEntry pool in entries)
-            {
-                Queue<GameObject> objectPool = new();
-
-                for (int i = 0; i < pool.size; i++)
-                {
-                    GameObject newObject = GameManager.Instantiate(pool.prefab, Vector3.zero, Quaternion.identity);
-                    if (pool.parentTag != untagged)
-                        newObject.transform.parent = GameObject.FindGameObjectWithTag(pool.parentTag).transform;
-
-                    newObject.SetActive(false);
-
-                    objectPool.Enqueue(newObject);
-                }
-
-                poolDictionary.Add(pool.id, objectPool);
-            }
-        }
 
         return true;
+    }
+
+    public void AddToPoolDictionary(string id, Queue<GameObject> gameObjectsQueue)
+    {
+        poolDictionary.Add(id, gameObjectsQueue);
     }
 
     public GameObject SpawnFromPool (string id, Vector3 position, Quaternion rotation)
@@ -65,12 +47,12 @@ public class Pool
         return pooledObject;
     }
 
-    public PoolSetupSettingsSO.PoolEntry PeekObjectEntryFromPool (string id)
+    public SceneSetupSO.Asset PeekObjectEntryFromPool (List<SceneSetupSO.Asset> assets, string id)
 	{
         if (!PoolContainsKey(id))
             return null;
 
-        return new(entries[0].id, entries[0].prefab, entries[0].size, entries[0].parentTag);
+        return new(assets[0].id, assets[0].prefab, assets[0].size, assets[0].parentTag);
     }
 
     private bool PoolContainsKey(string id)

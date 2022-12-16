@@ -6,7 +6,6 @@ Single MonoBehavior challenge
 ## Requirements
 
 ### ToDo
-- Scroll scene and spawn new tiles
 - Scale player to 20% of screen dynamically
 - Spawn terrain in different heights
 - Add player ability jump & double jump
@@ -14,7 +13,7 @@ Single MonoBehavior challenge
 - Implement a game-over trigger (*3)
 
 ### OnGoing
-
+- Scroll scene and spawn new tiles
 
 ### Done
 - Spawn objects to fill width of screen regardless the size/scale

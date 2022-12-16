@@ -9,19 +9,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3c06d389132b0be4aa5244695d0efb5a, type: 3}
-  m_Name: PoolSettings
+  m_Script: {fileID: 11500000, guid: 66f601d37f2e9fe4da62f46df0de96e8, type: 3}
+  m_Name: SceneSetupSO
   m_EditorClassIdentifier: 
-  PoolEntries:
+  Assets:
   - id: terrain
     prefab: {fileID: 3561961307481040097, guid: f7b49374f30d9364ab0bef9626a0c407, type: 3}
     size: 15
     parentTag: Terrain
-  - id: obstacle
-    prefab: {fileID: 3561961307481040097, guid: 08af9ee0cea2831458ddd9629b06718b, type: 3}
-    size: 3
-    parentTag: Obstacles
-  - id: pou
-    prefab: {fileID: 4392907085281444532, guid: bcc55514f12a1554cb85b036888ce5a5, type: 3}
-    size: 1
-    parentTag: Untagged

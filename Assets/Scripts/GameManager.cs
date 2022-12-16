@@ -5,7 +5,7 @@ using UnityEngine;
 public sealed class GameManager : MonoBehaviour
 {
     [SerializeField]
-    private PoolSetupSettingsSO pools;
+    private SceneSetupSO sceneSetupSettingsSO;
 
     private const string terrainID = "terrain";
 
@@ -26,12 +26,12 @@ public sealed class GameManager : MonoBehaviour
 
     private bool InitPool()
 	{
-        pool = new(pools);
+        pool = new();
         return pool.Init();
 	}
     private bool InitScene()
 	{
-        scene = new();
+        scene = new(sceneSetupSettingsSO, pool);
         return scene != null;
 	}
     private bool SetupTerrain()
