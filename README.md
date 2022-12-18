@@ -13,7 +13,7 @@ Single MonoBehavior challenge
 - Implement a game-over trigger (*3)
 
 ### OnGoing
-- Scroll scene and spawn new tiles
+- Scroll scene and spawn new tiles (IUpdatable)
 
 ### Done
 - Spawn objects to fill width of screen regardless the size/scale
@@ -22,6 +22,7 @@ Single MonoBehavior challenge
 - Implement a Promise system
 - Convert Pool to separate class
 - All assets moved to pool
+- Developed Repo scripts for faster string accessability
 
 ---
 
