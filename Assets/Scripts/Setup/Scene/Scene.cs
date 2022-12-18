@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 using Utils;
 
@@ -11,6 +10,10 @@ public class Scene
 
 	public Scene(List<SetupAsset> setupAssets)
 	{
+		CameraComponent cameraComponent = new();
+		CustomBehaviourAssetDatabase.Register(cameraComponent);
+		SimpleCollision.Register(cameraComponent);
+
 		sceneTransform = Create.NewGameObject(StringRepo.Assets.Scene).transform;
 
 		foreach (SetupAsset asset in setupAssets)
@@ -32,11 +35,11 @@ public class Scene
 				objectPool.Enqueue(newPrefab);
 			}
 
-			Pool.AddToPoolDictionary(asset.id, objectPool);
+			Pool.Add(asset.id, objectPool);
 		}
 	}
 
-	public bool SetupTerrain(List<SetupAsset> setupAssets)
+	public bool SetupTerrain(List<SetupAsset> setupAssets, TerrainConfigure terrainConfigure)
 	{
 		GameObject terrainTilePrefab = setupAssets.FindById(StringRepo.Assets.Terrain).prefab;
 		if (!terrainTilePrefab || sceneTransform == null)
@@ -47,17 +50,22 @@ public class Scene
 
 		Vector3 startPos = new(lowerRightCorner.x, lowerRightCorner.y + (terrainTilePrefab.transform.localScale.y / 2.0f), lowerRightCorner.z);
 
-		Pool.SpawnFromPool(StringRepo.Assets.Terrain, startPos, Quaternion.identity);
+        List<GameObject> pooledTerrain = new()
+        {
+            Pool.Spawn(StringRepo.Assets.Terrain, startPos, Quaternion.identity)
+        };
 
-		float nextPosOffset = terrainTilePrefab.transform.localScale.x;
+        float nextPosOffset = terrainTilePrefab.transform.localScale.x;
 		Vector3 nextPos = new(startPos.x - nextPosOffset, startPos.y, startPos.z);
-		int tilesCount = 1;
-		while (nextPos.x >= lowerLeftCorner.x)
-		{
-			Pool.SpawnFromPool(StringRepo.Assets.Terrain, nextPos, Quaternion.identity);
+        for (int tilesCount = 1; nextPos.x >= lowerLeftCorner.x; tilesCount++)
+        {
+            pooledTerrain.Add(Pool.Spawn(StringRepo.Assets.Terrain, nextPos, Quaternion.identity));
+            nextPos.x -= nextPosOffset;
+        }
 
-			nextPos.x -= nextPosOffset;
-			tilesCount++;
+        foreach (GameObject terrain in pooledTerrain)
+		{
+			CustomBehaviourAssetDatabase.Register(new TerrainComponent(terrain, terrainConfigure));
 		}
 
 		return true;

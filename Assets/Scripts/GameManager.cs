@@ -4,8 +4,13 @@ using UnityEngine;
 
 public sealed class GameManager : MonoBehaviour
 {
+    [Header("Setup")]
     [SerializeField]
     private List<SetupAsset> setupAssets = new();
+
+    [Header("Configure")]
+    [SerializeField]
+    private TerrainConfigure terrainConfig;
 
     private Scene scene;
 
@@ -32,7 +37,7 @@ public sealed class GameManager : MonoBehaviour
 	}
     private bool InitTerrain()
 	{
-        if (!scene.SetupTerrain(setupAssets))
+        if (!scene.SetupTerrain(setupAssets, terrainConfig))
         {
             Debug.LogError("Terrain failed to setup!");
             return false;
@@ -41,9 +46,9 @@ public sealed class GameManager : MonoBehaviour
 	}
 
     // Update is called once per frame
-    void Update()
+    private void Update()
     {
-        foreach (IUpdatable asset in AssetDatabase.Values)
+        foreach (IUpdatable asset in CustomBehaviourAssetDatabase.Values)
         {
             if (asset.gameObject != null)
             {
@@ -51,15 +56,25 @@ public sealed class GameManager : MonoBehaviour
             }
             else
             {
-                Debug.LogError($"Asset {asset} is null!");
+                Debug.LogError($"Asset {asset} is null in CustomBehaviourAssetDatabase!");
                 return;
             }
         }
     }
 
-    // new private T Instantiate<T>(T behaviour) where T : class, IUpdatable
+    // private void OnDrawGizmos()
     // {
-    //     AssetDatabase.Instantiate(behaviour);
-    //     return behaviour;
+    //     foreach (IUpdatable asset in SimpleCollision.Values)
+    //     {
+    //         if (asset.gameObject != null)
+    //         {
+    //             asset.OnDrawGizmos();
+    //         }
+    //         else
+    //         {
+    //             Debug.LogError($"Asset {asset} is null in SimpleCollisions database!");
+    //             return;
+    //         }
+    //     }
     // }
 }

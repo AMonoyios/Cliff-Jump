@@ -317,7 +317,7 @@ MonoBehaviour:
   setupAssets:
   - id: Terrain
     prefab: {fileID: 3561961307481040097, guid: f7b49374f30d9364ab0bef9626a0c407, type: 3}
-    size: 12
+    size: 10
     parentTagEnum: 2
   - id: Obstacle
     prefab: {fileID: 3561961307481040097, guid: 08af9ee0cea2831458ddd9629b06718b, type: 3}
@@ -327,3 +327,7 @@ MonoBehaviour:
     prefab: {fileID: 4392907085281444532, guid: bcc55514f12a1554cb85b036888ce5a5, type: 3}
     size: 1
     parentTagEnum: 0
+  terrainConfig:
+    startSpeed: 0.5
+    maxSpeed: 5
+    speedIncreasePerFrame: 0.005

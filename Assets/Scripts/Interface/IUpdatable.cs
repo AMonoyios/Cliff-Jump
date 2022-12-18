@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public interface IUpdatable
@@ -7,4 +5,6 @@ public interface IUpdatable
     GameObject gameObject { get; }
 
     void Update();
+
+    void OnDrawGizmos();
 }
