@@ -9,39 +9,36 @@ public class Scene
 {
 	private readonly Transform sceneTransform;
 
-	private const string untagged = "Untagged";
-	private List<SceneSetupSO.Asset> assets;
-
-	public Scene(SceneSetupSO sceneSetupSO, Pool pool)
+	public Scene(List<SetupAsset> setupAssets)
 	{
-		sceneTransform = Create.NewGameObject("Scene").transform;
-		Create.NewGameObject("Terrain", parent: sceneTransform, tag: "Terrain");
+		sceneTransform = Create.NewGameObject(StringRepo.Assets.Scene).transform;
 
-		// populate pool with scene assets from Scriptable object
-		assets = new(sceneSetupSO.Assets);
-		foreach (SceneSetupSO.Asset soPoolEntry in assets)
+		foreach (SetupAsset asset in setupAssets)
 		{
 			Queue<GameObject> objectPool = new();
 
-			for (int i = 0; i < soPoolEntry.size; i++)
+			for (int i = 0; i < asset.size; i++)
 			{
-				GameObject newPrefab = Create.NewPrefab(soPoolEntry.prefab);
+				GameObject newPrefab = Create.NewPrefab(asset.prefab);
 
-				if (soPoolEntry.parentTag != untagged)
-					newPrefab.transform.parent = GameObject.FindGameObjectWithTag(soPoolEntry.parentTag).transform;
+				if (asset.parentTagEnum != TagRepo.TagEnums.Untagged)
+				{
+					GameObject parent = GameObject.FindGameObjectWithTag(TagRepo.Tags(asset.parentTagEnum));
+                    newPrefab.transform.parent = parent != null ? parent.transform : Create.NewGameObject(TagRepo.Tags(asset.parentTagEnum), parent: sceneTransform, TagRepo.Tags(asset.parentTagEnum)).transform;
+                }
 
 				newPrefab.SetActive(false);
 
 				objectPool.Enqueue(newPrefab);
 			}
 
-			pool.AddToPoolDictionary(assets[0].id, objectPool);
+			Pool.AddToPoolDictionary(asset.id, objectPool);
 		}
 	}
 
-	public bool SetupTerrain(Pool pool, string tileID)
+	public bool SetupTerrain(List<SetupAsset> setupAssets)
 	{
-		GameObject terrainTilePrefab = pool.PeekObjectEntryFromPool(assets, tileID).prefab;
+		GameObject terrainTilePrefab = setupAssets.FindById(StringRepo.Assets.Terrain).prefab;
 		if (!terrainTilePrefab || sceneTransform == null)
 			return false;
 
@@ -50,14 +47,14 @@ public class Scene
 
 		Vector3 startPos = new(lowerRightCorner.x, lowerRightCorner.y + (terrainTilePrefab.transform.localScale.y / 2.0f), lowerRightCorner.z);
 
-		pool.SpawnFromPool(tileID, startPos, Quaternion.identity);
+		Pool.SpawnFromPool(StringRepo.Assets.Terrain, startPos, Quaternion.identity);
 
 		float nextPosOffset = terrainTilePrefab.transform.localScale.x;
 		Vector3 nextPos = new(startPos.x - nextPosOffset, startPos.y, startPos.z);
 		int tilesCount = 1;
 		while (nextPos.x >= lowerLeftCorner.x)
 		{
-			pool.SpawnFromPool(tileID, nextPos, Quaternion.identity);
+			Pool.SpawnFromPool(StringRepo.Assets.Terrain, nextPos, Quaternion.identity);
 
 			nextPos.x -= nextPosOffset;
 			tilesCount++;

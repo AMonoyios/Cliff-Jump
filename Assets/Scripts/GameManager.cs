@@ -5,46 +5,61 @@ using UnityEngine;
 public sealed class GameManager : MonoBehaviour
 {
     [SerializeField]
-    private SceneSetupSO sceneSetupSettingsSO;
+    private List<SetupAsset> setupAssets = new();
 
-    private const string terrainID = "terrain";
-
-    private Pool pool;
     private Scene scene;
-    
+
     // Start is called before the first frame update
     void Start()
     {
         new Promise<bool>()
-            .Add(InitPool)
             .Add(InitScene)
-            .Add(SetupTerrain)
+            .Add(InitTerrain)
             .Condition((value) => value)
             .Execute()
             .OnComplete(() => Debug.Log("Finished game init."));
     }
 
-    private bool InitPool()
-	{
-        pool = new();
-        return pool.Init();
-	}
     private bool InitScene()
 	{
-        scene = new(sceneSetupSettingsSO, pool);
-        return scene != null;
-	}
-    private bool SetupTerrain()
-	{
-        if (!scene.SetupTerrain(pool, terrainID))
+        scene = new(setupAssets);
+        if (scene == null)
+        {
+            Debug.LogError("Scene is null!");
             return false;
-
-        Debug.Log("Finished scene setup.");
+        }
         return true;
-    }
+	}
+    private bool InitTerrain()
+	{
+        if (!scene.SetupTerrain(setupAssets))
+        {
+            Debug.LogError("Terrain failed to setup!");
+            return false;
+        }
+        return true;
+	}
 
     // Update is called once per frame
     void Update()
     {
+        foreach (IUpdatable asset in AssetDatabase.Values)
+        {
+            if (asset.gameObject != null)
+            {
+                asset.Update();
+            }
+            else
+            {
+                Debug.LogError($"Asset {asset} is null!");
+                return;
+            }
+        }
     }
+
+    // new private T Instantiate<T>(T behaviour) where T : class, IUpdatable
+    // {
+    //     AssetDatabase.Instantiate(behaviour);
+    //     return behaviour;
+    // }
 }

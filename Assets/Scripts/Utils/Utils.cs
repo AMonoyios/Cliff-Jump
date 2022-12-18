@@ -17,8 +17,9 @@ namespace Utils
 				name = name
 			};
 			gameObject.transform.SetPositionAndRotation(position, rotation);
-			gameObject.transform.localScale = scale;
 			gameObject.transform.parent = parent;
+
+			gameObject.transform.localScale = scale;
 			gameObject.transform.tag = tag;
 
 			return gameObject;
@@ -30,13 +31,28 @@ namespace Utils
 		}
 		public static GameObject NewPrefab(GameObject prefab, Vector3 position, Quaternion rotation, Vector3 scale, Transform parent = null, string tag = "Untagged")
 		{
-			GameObject newPrefab = GameManager.Instantiate(prefab, position, rotation, parent);
+			GameObject newPrefab = Object.Instantiate(prefab, position, rotation, parent);
+
 			newPrefab.transform.localScale = scale;
 			newPrefab.transform.tag = tag;
 
 			return newPrefab;
 		}
 	}
-	
-	
+
+	public static class Extensions
+	{
+		public static SetupAsset FindById(this List<SetupAsset> setupAssets, string id)
+		{
+			foreach (SetupAsset asset in setupAssets)
+			{
+				if (asset.id == id)
+				{
+					return asset;
+				}
+			}
+
+			return null;
+		}
+	}
 }
