@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEditor;
+using CollisionDetection;
 
 [System.Serializable]
 public class TerrainConfigure
@@ -39,6 +39,5 @@ public sealed class TerrainComponent : IUpdatable, ICollidable
 
     public void FixedUpdate()
     {
-        throw new System.NotImplementedException();
     }
 }

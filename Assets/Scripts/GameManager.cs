@@ -15,7 +15,7 @@ public sealed class GameManager : MonoBehaviour
     private Scene scene;
 
     // Start is called before the first frame update
-    void Start()
+    private void Start()
     {
         new Promise<bool>()
             .Add(InitScene)
@@ -50,15 +50,17 @@ public sealed class GameManager : MonoBehaviour
     {
         foreach (IUpdatable asset in UpdatablesDatabase.Values)
         {
-            if (asset.gameObject != null)
-            {
+            if (asset.gameObject != null && asset.gameObject.activeSelf)
                 asset.Update();
-            }
-            else
-            {
-                Debug.LogError($"Asset {asset} is null in CustomBehaviourAssetDatabase!");
-                return;
-            }
+        }
+    }
+
+    private void FixedUpdate()
+    {
+        foreach (ICollidable asset in CollidablesDatabase.Values)
+        {
+            if (asset.gameObject != null && asset.gameObject.activeSelf)
+                asset.FixedUpdate();
         }
     }
 }

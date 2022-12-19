@@ -10,10 +10,9 @@ public class Scene
 
 	public Scene(List<SetupAsset> setupAssets)
 	{
-		CameraComponent cameraComponent = new();
-		CollidablesDatabase.Register(cameraComponent);
+        _ = new CameraComponent();
 
-		sceneTransform = Create.NewGameObject(StringRepo.Assets.Scene).transform;
+        sceneTransform = Create.NewGameObject(StringRepo.Assets.Scene).transform;
 
 		foreach (SetupAsset asset in setupAssets)
 		{

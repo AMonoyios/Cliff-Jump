@@ -9,15 +9,14 @@ public static class UpdatablesDatabase
     public static T Register<T>(T behaviour) where T : class, IUpdatable
     {
         updatables.Add(behaviour.gameObject.GetHashCode(), behaviour);
+
         return behaviour;
     }
 
     public static T GetBehaviour<T>(GameObject gameObject) where T : class, IUpdatable
     {
         if (updatables.ContainsKey(gameObject.GetHashCode()) && updatables[gameObject.GetHashCode()] is T t)
-        {
             return t;
-        }
 
         return null;
     }
