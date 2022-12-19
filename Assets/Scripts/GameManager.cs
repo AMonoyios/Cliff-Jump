@@ -48,7 +48,7 @@ public sealed class GameManager : MonoBehaviour
     // Update is called once per frame
     private void Update()
     {
-        foreach (IUpdatable asset in CustomBehaviourAssetDatabase.Values)
+        foreach (IUpdatable asset in UpdatablesDatabase.Values)
         {
             if (asset.gameObject != null)
             {
@@ -61,20 +61,4 @@ public sealed class GameManager : MonoBehaviour
             }
         }
     }
-
-    // private void OnDrawGizmos()
-    // {
-    //     foreach (IUpdatable asset in SimpleCollision.Values)
-    //     {
-    //         if (asset.gameObject != null)
-    //         {
-    //             asset.OnDrawGizmos();
-    //         }
-    //         else
-    //         {
-    //             Debug.LogError($"Asset {asset} is null in SimpleCollisions database!");
-    //             return;
-    //         }
-    //     }
-    // }
 }

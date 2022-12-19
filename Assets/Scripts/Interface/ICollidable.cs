@@ -1,8 +1,8 @@
 using UnityEngine;
 
-public interface IUpdatable
+public interface ICollidable
 {
     GameObject gameObject { get; }
 
-    void Update();
+    void FixedUpdate();
 }

@@ -11,7 +11,7 @@ public class TerrainConfigure
     public float speedIncreasePerFrame = 0.005f;
 }
 
-public sealed class TerrainComponent : IUpdatable
+public sealed class TerrainComponent : IUpdatable, ICollidable
 {
     public GameObject gameObject { get; }
 
@@ -26,6 +26,8 @@ public sealed class TerrainComponent : IUpdatable
         currentSpeed = terrainConfigure.startSpeed;
         maxSpeed = terrainConfigure.maxSpeed;
         speedIncreasePerFrame = terrainConfigure.speedIncreasePerFrame;
+
+        CollidablesDatabase.Register(this);
     }
 
     public void Update()
@@ -35,9 +37,8 @@ public sealed class TerrainComponent : IUpdatable
         Debug.Log(currentSpeed);
     }
 
-    #if UNITY_EDITOR
-    public void OnDrawGizmos()
+    public void FixedUpdate()
     {
+        throw new System.NotImplementedException();
     }
-    #endif
 }

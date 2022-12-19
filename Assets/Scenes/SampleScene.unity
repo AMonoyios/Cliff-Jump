@@ -158,8 +158,8 @@ Light:
   m_InnerSpotAngle: 21.80208
   m_CookieSize: 10
   m_Shadows:
-    m_Type: 2
-    m_Resolution: -1
+    m_Type: 1
+    m_Resolution: 1
     m_CustomResolution: -1
     m_Strength: 1
     m_Bias: 0.05
@@ -318,15 +318,15 @@ MonoBehaviour:
   - id: Terrain
     prefab: {fileID: 3561961307481040097, guid: f7b49374f30d9364ab0bef9626a0c407, type: 3}
     size: 10
-    parentTagEnum: 2
+    parentTag: 2
   - id: Obstacle
     prefab: {fileID: 3561961307481040097, guid: 08af9ee0cea2831458ddd9629b06718b, type: 3}
     size: 3
-    parentTagEnum: 3
+    parentTag: 3
   - id: Pou
     prefab: {fileID: 4392907085281444532, guid: bcc55514f12a1554cb85b036888ce5a5, type: 3}
     size: 1
-    parentTagEnum: 0
+    parentTag: 1
   terrainConfig:
     startSpeed: 0.5
     maxSpeed: 5

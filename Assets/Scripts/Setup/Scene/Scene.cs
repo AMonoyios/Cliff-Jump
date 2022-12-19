@@ -11,8 +11,7 @@ public class Scene
 	public Scene(List<SetupAsset> setupAssets)
 	{
 		CameraComponent cameraComponent = new();
-		CustomBehaviourAssetDatabase.Register(cameraComponent);
-		SimpleCollision.Register(cameraComponent);
+		CollidablesDatabase.Register(cameraComponent);
 
 		sceneTransform = Create.NewGameObject(StringRepo.Assets.Scene).transform;
 
@@ -24,10 +23,12 @@ public class Scene
 			{
 				GameObject newPrefab = Create.NewPrefab(asset.prefab);
 
-				if (asset.parentTagEnum != TagRepo.TagEnums.Untagged)
+				if (asset.parentTag != TagEnums.Untagged)
 				{
-					GameObject parent = GameObject.FindGameObjectWithTag(TagRepo.Tags(asset.parentTagEnum));
-                    newPrefab.transform.parent = parent != null ? parent.transform : Create.NewGameObject(TagRepo.Tags(asset.parentTagEnum), parent: sceneTransform, TagRepo.Tags(asset.parentTagEnum)).transform;
+					GameObject parent = GameObject.FindGameObjectWithTag(StringRepo.Tags.ToString(asset.parentTag));
+                    newPrefab.transform.parent = parent != null ?
+						parent.transform :
+						Create.NewGameObject(asset.Name, sceneTransform, StringRepo.Tags.ToString(asset.parentTag)).transform;
                 }
 
 				newPrefab.SetActive(false);
@@ -65,7 +66,7 @@ public class Scene
 
         foreach (GameObject terrain in pooledTerrain)
 		{
-			CustomBehaviourAssetDatabase.Register(new TerrainComponent(terrain, terrainConfigure));
+			UpdatablesDatabase.Register(new TerrainComponent(terrain, terrainConfigure));
 		}
 
 		return true;

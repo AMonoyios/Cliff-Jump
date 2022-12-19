@@ -8,13 +8,23 @@ public class SetupAsset
     public string id;
 	public GameObject prefab;
 	public int size;
-	public TagRepo.TagEnums parentTagEnum;
+	public TagEnums parentTag;
 
-	public SetupAsset(string id, GameObject prefab, int size, TagRepo.TagEnums parentTag = TagRepo.TagEnums.Untagged)
+	public string Name
+	{
+		get
+		{
+			return prefab == null ?
+				"Unknown" :
+				prefab.name;
+		}
+	}
+
+	public SetupAsset(string id, GameObject prefab, int size, TagEnums parentTag = TagEnums.Untagged)
 	{
 		this.id = id;
 		this.prefab = prefab;
 		this.size = size;
-		this.parentTagEnum = parentTag;
+		this.parentTag = parentTag;
 	}
 }

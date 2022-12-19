@@ -3,17 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
-public sealed class CameraComponent : IUpdatable
+public sealed class CameraComponent : ICollidable
 {
     public GameObject gameObject => Camera.main.gameObject;
 
-    public void Update()
+    public void FixedUpdate()
     {
     }
-
-    #if UNITY_EDITOR
-    public void OnDrawGizmos()
-    {
-    }
-    #endif
 }
