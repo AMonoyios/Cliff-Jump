@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.InteropServices.WindowsRuntime;
 using UnityEngine;
+using Utils;
 
 public sealed class GameManager : MonoBehaviour
 {
@@ -11,20 +13,35 @@ public sealed class GameManager : MonoBehaviour
     [Header("Configure")]
     [SerializeField]
     private TerrainConfigure terrainConfig;
+    [SerializeField]
+    private PlayerConfigure playerConfig;
 
     private Scene scene;
+
+    public static Vector3 terrainSpawnPosition;
 
     // Start is called before the first frame update
     private void Start()
     {
         new Promise<bool>()
             .Add(InitScene)
-            .Add(InitTerrain)
+            .Add(SetupTerrain)
+            .Add(SetupPlayer)
+            .Add(SetupTest)
             .Condition((value) => value)
             .Execute()
             .OnComplete(() => Debug.Log("Finished game init."));
     }
 
+    private bool SetupTest()
+    {
+        GameObject testGO = Create.NewGameObject("test", Vector3.zero, Quaternion.identity, Vector3.one);
+		new test(testGO);
+
+		return true;
+    }    
+
+#region InitGame
     private bool InitScene()
 	{
         scene = new(setupAssets);
@@ -35,7 +52,7 @@ public sealed class GameManager : MonoBehaviour
         }
         return true;
 	}
-    private bool InitTerrain()
+    private bool SetupTerrain()
 	{
         if (!scene.SetupTerrain(setupAssets, terrainConfig))
         {
@@ -44,23 +61,56 @@ public sealed class GameManager : MonoBehaviour
         }
         return true;
 	}
+    private bool SetupPlayer()
+    {
+        if (!scene.SetupPlayer(playerConfig.x))
+        {
+            Debug.LogError("Player failed to setup!");
+            return false;
+        }
+        return true;
+	}
+#endregion
 
-    // Update is called once per frame
+#region GameEngine life cycles
     private void Update()
     {
-        foreach (IUpdatable asset in UpdatablesDatabase.Values)
+        foreach (IBehaviour asset in CustomBehaviourAssetsDatabase.Values)
         {
-            if (asset.gameObject != null && asset.gameObject.activeSelf)
+            if (asset.GetGameObject != null && asset.GetGameObject.activeSelf)
                 asset.Update();
         }
     }
 
     private void FixedUpdate()
     {
-        foreach (ICollidable asset in CollidablesDatabase.Values)
+        foreach (IBehaviour asset in CustomBehaviourAssetsDatabase.Values)
         {
-            if (asset.gameObject != null && asset.gameObject.activeSelf)
+            if (asset.GetGameObject != null && asset.GetGameObject.activeSelf)
                 asset.FixedUpdate();
         }
     }
+#endregion
+
+#region Debug life cycles
+    #if UNITY_EDITOR
+    private void OnDrawGizmos()
+    {
+        foreach (IBehaviour asset in CustomBehaviourAssetsDatabase.Values)
+        {
+            if (asset.GetGameObject != null && asset.GetGameObject.activeSelf)
+                asset.OnDrawGizmos();
+        }
+    }
+
+    private void OnDrawGizmosSelected()
+    {
+        foreach (IBehaviour asset in CustomBehaviourAssetsDatabase.Values)
+        {
+            if (asset.GetGameObject != null && asset.GetGameObject.activeSelf)
+                asset.OnDrawGizmosSelected();
+        }
+    }
+    #endif
+#endregion
 }

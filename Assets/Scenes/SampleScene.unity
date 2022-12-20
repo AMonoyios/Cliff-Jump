@@ -318,16 +318,16 @@ MonoBehaviour:
   - id: Terrain
     prefab: {fileID: 3561961307481040097, guid: f7b49374f30d9364ab0bef9626a0c407, type: 3}
     size: 10
-    parentTag: 2
-  - id: Obstacle
-    prefab: {fileID: 3561961307481040097, guid: 08af9ee0cea2831458ddd9629b06718b, type: 3}
-    size: 3
-    parentTag: 3
+    parentName: TerrainCubeTile
   - id: Pou
     prefab: {fileID: 4392907085281444532, guid: bcc55514f12a1554cb85b036888ce5a5, type: 3}
     size: 1
-    parentTag: 1
+    parentName: Scene
   terrainConfig:
-    startSpeed: 0.5
-    maxSpeed: 5
-    speedIncreasePerFrame: 0.005
+    startSpeed: 1
+    maxSpeed: 2.5
+    speedIncreasePerFrame: 0.00001
+    chanceForHeightChange: 1
+    heightOffset: {x: -0.25, y: 2}
+  playerConfig:
+    x: 1

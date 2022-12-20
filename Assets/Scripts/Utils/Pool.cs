@@ -17,7 +17,7 @@ public static class Pool
         if (!PoolContainsKey(id))
             return null;
 
-        return SetAssetState(id, true, position, rotation);;
+        return SetAssetState(id, true, position, rotation);
     }
 
     public static GameObject Despawn(string id)

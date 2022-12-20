@@ -5,19 +5,16 @@ using Utils;
 
 public sealed class CameraComponent
 {
-    public GameObject gameObject { get; }
+    private readonly Camera camera;
+    private Bounds cameraBounds;
 
-    readonly Camera camera;
-    Bounds cameraBounds;
+    private Vector3 boundBoxScale = Vector3.zero;
 
-    Vector3 boundBoxScale = Vector3.zero;
-
-    GameObject cameraColliderGameObject;
-    CameraColliderComponent cameraCollider;
+    private GameObject cameraColliderGameObject;
+    private CameraColliderComponent cameraCollider;
 
     public CameraComponent(Camera camera)
     {
-        gameObject = camera.gameObject;
         this.camera = camera;
 
         new Promise<bool>()
@@ -76,9 +73,9 @@ public sealed class CameraComponent
 
     private bool AddCameraColliderToDatabase()
     {
-        CollidablesDatabase.Register(cameraCollider);
+        CustomBehaviourAssetsDatabase.Register(cameraCollider);
 
-        if (CollidablesDatabase.GetBehaviour<CameraColliderComponent>(camera.gameObject) == null)
+        if (CustomBehaviourAssetsDatabase.GetBehaviour<CameraColliderComponent>(cameraColliderGameObject) == null)
         {
             Debug.LogError("Failed to find behaviour for camera collider gameobject in CollidablesDatabase.");
             return false;

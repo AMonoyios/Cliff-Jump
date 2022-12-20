@@ -6,18 +6,20 @@ namespace CollisionDetection
 {
     public static class CollisionCheck
     {
-        // AABB vs AABB collision check
+        // AABB vs AABB collision check ( not Tested)
+        // FIXME: don't seem to work correclty
         public static bool BoxToBox(Transform box1, Transform box2)
         {
-            return  (Mathf.Abs(box1.position.x - box2.position.x) <= ((box1.localScale.x / 2.0f) - (box2.localScale.x / 2.0f))) ||
-                    (Mathf.Abs(box1.position.y - box2.position.y) <= ((box1.localScale.y / 2.0f) - (box2.localScale.y / 2.0f))) ||
-                    (Mathf.Abs(box1.position.z - box2.position.z) <= ((box1.localScale.z / 2.0f) - (box2.localScale.z / 2.0f)));
+            float distance = Vector3.Distance(box1.position, box2.position);
+
+            return  (distance <= ((box1.localScale.x / 2.0f) + (box2.localScale.x / 2.0f))) ||
+                    (distance <= ((box1.localScale.y / 2.0f) + (box2.localScale.y / 2.0f))) ||
+                    (distance <= ((box1.localScale.z / 2.0f) + (box2.localScale.z / 2.0f)));
         }
 
-        // AABB vs Sphere collision check
+        // AABB vs Sphere collision check (Untested)
         public static bool BoxToSphere(Transform box, Vector3 sphere, float radius)
         {
-            // get box closest point to sphere center by clamping
             Vector3 closestPoint = new
             (
                 x: Mathf.Max(Mathf.Abs(box.position.x - (box.localScale.x / 2.0f)), Mathf.Min(sphere.x, Mathf.Abs(box.position.x + (box.localScale.x / 2.0f)))),
@@ -25,7 +27,6 @@ namespace CollisionDetection
                 z: Mathf.Max(Mathf.Abs(box.position.z - (box.localScale.z / 2.0f)), Mathf.Min(sphere.z, Mathf.Abs(box.position.z + (box.localScale.z / 2.0f))))
             );
 
-            // this is the same as isPointInsideSphere
             float distance = Mathf.Sqrt(((closestPoint.x - sphere.x) * (closestPoint.x - sphere.x)) +
                                         ((closestPoint.y - sphere.y) * (closestPoint.y - sphere.y)) +
                                         ((closestPoint.z - sphere.z) * (closestPoint.z - sphere.z)));
@@ -33,7 +34,7 @@ namespace CollisionDetection
             return distance < radius;
         }
 
-        // AABB bs Point collision check
+        // AABB bs Point collision check (Untested)
         public static bool BoxToPoint(Transform box, Vector3 point)
         {
             return  (Mathf.Abs(box.position.x - (box.localScale.x / 2.0f)) <= point.x) ||
@@ -41,7 +42,7 @@ namespace CollisionDetection
                     (Mathf.Abs(box.position.z - (box.localScale.z / 2.0f)) <= point.z);
         }
 
-        // Sphere to Sphere collision check
+        // Sphere to Sphere collision check (Untested)
         public static bool SphereToSphere(Vector3 sphere1, float radius1, Vector3 sphere2, float radius2)
         {
             float distance = Mathf.Sqrt(((sphere1.x - sphere2.x) * (sphere1.x - sphere2.x)) +
@@ -51,7 +52,7 @@ namespace CollisionDetection
             return distance < radius1 + radius2;
         }
 
-        // Sphere to Point collision check
+        // Sphere to Point collision check (Untested)
         public static bool SphereToPoint(Vector3 sphere, float radius, Vector3 point)
         {
             float distance = Mathf.Sqrt(((point.x - sphere.x) * (point.x - sphere.x)) +

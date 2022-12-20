@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 [System.Serializable]
@@ -8,7 +6,8 @@ public class SetupAsset
     public string id;
 	public GameObject prefab;
 	public int size;
-	public TagEnums parentTag;
+	[Tooltip("This is just for organization, if left empty object will spawn in root level. Tip: Generation will create a 'Scene' gameObject regardless.")]
+	public string parentName;
 
 	public string Name
 	{
@@ -18,13 +17,5 @@ public class SetupAsset
 				"Unknown" :
 				prefab.name;
 		}
-	}
-
-	public SetupAsset(string id, GameObject prefab, int size, TagEnums parentTag = TagEnums.Untagged)
-	{
-		this.id = id;
-		this.prefab = prefab;
-		this.size = size;
-		this.parentTag = parentTag;
 	}
 }
