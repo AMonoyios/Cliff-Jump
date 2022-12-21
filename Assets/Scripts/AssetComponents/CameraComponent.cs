@@ -5,36 +5,24 @@ using Utils;
 
 public sealed class CameraComponent
 {
-    private readonly Camera camera;
-    private Bounds cameraBounds;
+    private Camera GetCamera { get; }
 
     private Vector3 boundBoxScale = Vector3.zero;
 
-    private GameObject cameraColliderGameObject;
-    private CameraColliderComponent cameraCollider;
-
-    public CameraComponent(Camera camera)
+    public CameraComponent()
     {
-        this.camera = camera;
-
-        new Promise<bool>()
-            .Add(CalculateCameraFrustumArea)
-            .Add(CreateCameraCollisionArea)
-            .Add(AddCameraColliderToDatabase)
-            .Condition((result) => result)
-            .Execute()
-            .OnComplete(() => Debug.Log("Camera collider area registered."));
+        GetCamera = Camera.main;
     }
 
-    private bool CalculateCameraFrustumArea()
+    public bool SetupCamera()
     {
-        if (camera == null)
+        if (GetCamera == null)
         {
             Debug.LogError("Camera is null or missing");
             return false;
         }
 
-        Plane[] planes = GeometryUtility.CalculateFrustumPlanes(camera);
+        Plane[] planes = GeometryUtility.CalculateFrustumPlanes(GetCamera);
         if (planes.Length < 6)
         {
             Debug.LogError("Planes did not add up to 6 faces, unable to create bound box.");
@@ -48,32 +36,22 @@ public sealed class CameraComponent
             z: Vector3.Distance(-planes[4].normal * planes[4].distance, -planes[5].normal * planes[5].distance)
         );
 
-        cameraBounds = new(Vector3.zero, Vector3.zero);
+        Bounds cameraBounds = new(Vector3.zero, Vector3.zero);
         for (int i = 0; i < 6; ++i)
         {
             cameraBounds.Encapsulate(-planes[i].normal * planes[i].distance);
         }
 
-        return true;
-    }
+        GameObject cameraColliderGameObject = Create.NewGameObject("CameraCollisionArea", cameraBounds.center, Quaternion.identity, boundBoxScale, GetCamera.gameObject.transform);
+        CameraColliderComponent cameraColliderComponent = new(cameraColliderGameObject);
 
-    private bool CreateCameraCollisionArea()
-    {
-        cameraColliderGameObject = Create.NewGameObject("CameraCollisionArea", cameraBounds.center, Quaternion.identity, boundBoxScale, Camera.main.transform);
-        cameraCollider = new(cameraColliderGameObject);
-
-        if (cameraCollider == null)
+        if (cameraColliderComponent == null)
         {
             Debug.LogError("Failed to create camera collider!");
             return false;
         }
 
-        return true;
-    }
-
-    private bool AddCameraColliderToDatabase()
-    {
-        CustomBehaviourAssetsDatabase.Register(cameraCollider);
+        CustomBehaviourAssetsDatabase.Register(cameraColliderComponent);
 
         if (CustomBehaviourAssetsDatabase.GetBehaviour<CameraColliderComponent>(cameraColliderGameObject) == null)
         {

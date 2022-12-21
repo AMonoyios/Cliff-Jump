@@ -14,7 +14,7 @@ public static class Pool
 
     public static GameObject Spawn(string id, Vector3 position, Quaternion rotation)
     {
-        if (!PoolContainsKey(id))
+        if (!ContainsKey(id))
             return null;
 
         return SetAssetState(id, true, position, rotation);
@@ -22,7 +22,7 @@ public static class Pool
 
     public static GameObject Despawn(string id)
     {
-        if (!PoolContainsKey(id))
+        if (!ContainsKey(id))
             return null;
 
         return SetAssetState(id, false, Vector3.zero, Quaternion.identity);
@@ -40,7 +40,7 @@ public static class Pool
         return pooledObject;
     }
 
-    private static bool PoolContainsKey(string id)
+    public static bool ContainsKey(string id)
 	{
         if (!poolDictionary.ContainsKey(id))
         {

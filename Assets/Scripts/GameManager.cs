@@ -16,7 +16,8 @@ public sealed class GameManager : MonoBehaviour
     [SerializeField]
     private PlayerConfigure playerConfig;
 
-    private Scene scene;
+    private SetupManager scene;
+    private CameraComponent camera;
 
     public static Vector3 terrainSpawnPosition;
 
@@ -25,21 +26,13 @@ public sealed class GameManager : MonoBehaviour
     {
         new Promise<bool>()
             .Add(InitScene)
+            .Add(SetupCamera)
             .Add(SetupTerrain)
             .Add(SetupPlayer)
-            .Add(SetupTest)
             .Condition((value) => value)
             .Execute()
             .OnComplete(() => Debug.Log("Finished game init."));
     }
-
-    private bool SetupTest()
-    {
-        GameObject testGO = Create.NewGameObject("test", Vector3.zero, Quaternion.identity, Vector3.one);
-		new test(testGO);
-
-		return true;
-    }    
 
 #region InitGame
     private bool InitScene()
@@ -52,6 +45,12 @@ public sealed class GameManager : MonoBehaviour
         }
         return true;
 	}
+    private bool SetupCamera()
+    {
+        camera = new();
+
+        return camera.SetupCamera();
+    }
     private bool SetupTerrain()
 	{
         if (!scene.SetupTerrain(setupAssets, terrainConfig))

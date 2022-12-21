@@ -17,13 +17,20 @@ public class CameraColliderComponent : IBehaviour
         foreach (IBehaviour behaviours in CustomBehaviourAssetsDatabase.Values)
         {
             GameObject terrainGameObject = behaviours.GetGameObject;
-            if (!CollisionCheck.BoxToBox(GetGameObject.transform, terrainGameObject.transform) &&
-                terrainGameObject.activeSelf &&
-                terrainGameObject.transform.position.x < Camera.main.transform.position.x)
+
+            TerrainComponent terrainComponent = CustomBehaviourAssetsDatabase.GetBehaviour<TerrainComponent>(terrainGameObject);
+
+            if (terrainComponent == null)
             {
-                TerrainComponent terrainComponent = CustomBehaviourAssetsDatabase.GetBehaviour<TerrainComponent>(terrainGameObject);
-				terrainComponent.Respawn();
+                Debug.LogError("TerrainComponent is NULL");
+                return;
             }
+
+            bool collided = CollisionCheck.BoxToBox(GetGameObject.transform, terrainGameObject.transform);
+            bool activeGO = terrainGameObject.activeSelf;
+            bool passedLeftBound = terrainGameObject.transform.position.x < Camera.main.transform.position.x;
+
+            terrainComponent.collided = !collided && activeGO && passedLeftBound;
         }
     }
 

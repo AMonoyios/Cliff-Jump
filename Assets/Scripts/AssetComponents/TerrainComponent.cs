@@ -20,11 +20,13 @@ public sealed class TerrainComponent : IBehaviour
 {
     public GameObject GetGameObject { get; }
 
-    public float CurrentSpeed { get; private set; }
+    public float CurrentSpeed { get; }
     public float MaxSpeed { get; }
     public float SpeedIncrease { get; }
     public float ChanceForHeightChange { get; }
     public Vector2 HeightOffset { get; }
+
+    public bool collided = false;
 
     public TerrainComponent(GameObject gameObject, TerrainConfigure terrainConfigure)
     {
@@ -39,7 +41,7 @@ public sealed class TerrainComponent : IBehaviour
 
     public void Update()
     {
-        GetGameObject.transform.Translate((CurrentSpeed > MaxSpeed ? MaxSpeed : CurrentSpeed += SpeedIncrease) * Time.deltaTime * -Vector3.right);
+        // GetGameObject.transform.Translate((CurrentSpeed > MaxSpeed ? MaxSpeed : CurrentSpeed += SpeedIncrease) * Time.deltaTime * -Vector3.right);
     }
 
     // Note: this runs in fixed update of the camera
@@ -63,5 +65,13 @@ public sealed class TerrainComponent : IBehaviour
         GetGameObject.transform.position = newPosition;
 
         Debug.Log(log);
+    }
+
+    public void OnDrawGizmos()
+    {
+        if (collided)
+        {
+            GizmosExtra.DrawSphereAboveObject(GetGameObject.transform, Color.red);
+        }
     }
 }
