@@ -330,4 +330,4 @@ MonoBehaviour:
     chanceForHeightChange: 0.5
     heightOffset: {x: -0.25, y: 2}
   playerConfig:
-    spawnXOffset: 100
+    spawnXOffset: 25

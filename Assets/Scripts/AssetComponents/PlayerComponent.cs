@@ -6,26 +6,16 @@ using Utils;
 [System.Serializable]
 public class PlayerConfigure
 {
-	[Range(0.0f, 100.0f)]
-	public float spawnXOffset = 0.0f;
+	[Range(0.0f, 100.0f), Tooltip("This percentage will determine how left or right the player will spawn. 0: Full left, 100: Full right")]
+	public float spawnXOffset = 50.0f;
 }
 
 public class PlayerComponent : IBehaviour
 {
 	public GameObject GetGameObject { get; }
 
-	// private Vector3 spawnPosition;
-
-	public PlayerComponent(GameObject playerGameObject)//, Vector3 spawnPosition)
+	public PlayerComponent(GameObject playerGameObject)
 	{
 		GetGameObject = playerGameObject;
-
-		// this.spawnPosition = spawnPosition;
 	}
-
-	// public void OnDrawGizmos()
-	// {
-	// 	Gizmos.color = ColorExtra.Brown;
-	// 	Gizmos.DrawSphere(spawnPosition, GetGameObject.transform.localScale.x / 2.0f);
-	// }
 }

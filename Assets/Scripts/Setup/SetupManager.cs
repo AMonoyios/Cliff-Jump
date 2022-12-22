@@ -25,6 +25,8 @@ public class SetupManager
 	private CameraBounds cameraBounds;
 	private float terrainScaleY;
 
+	private const float playerScaleConst = 0.2f;
+
 	public SetupManager(List<SetupAsset> setupAssets)
 	{
         sceneTransform = Create.NewGameObject(StringRepo.Assets.Scene).transform;
@@ -145,7 +147,6 @@ public class SetupManager
 		return true;
 	}
 
-	// FIXME: this requires work
 	public bool SetupPlayer(string playerID, PlayerConfigure playerConfig)
 	{
 		if (!Pool.ContainsKey(playerID))
@@ -156,18 +157,16 @@ public class SetupManager
 
 		GameObject playerGameObject = Pool.Spawn(playerID, Vector3.zero, Quaternion.identity);
 
-		float boundsDiff = Mathf.Abs(cameraBounds.XCameraBounds.x - cameraBounds.XCameraBounds.y);
-		Create.NewGameObject("boundDiff", new Vector3(boundsDiff, 0,0), Quaternion.identity, Vector3.one);
-
-		float xPos = 0.0f;
+		float playerRelativeScreenScale = Mathf.Lerp(1, Mathf.Abs(cameraBounds.XCameraBounds.x - cameraBounds.XCameraBounds.y), playerScaleConst);
+		playerGameObject.transform.localScale = new(playerRelativeScreenScale, playerRelativeScreenScale, playerRelativeScreenScale);
 		playerGameObject.transform.position = (new
 		(
-			x: xPos,//(cameraBounds.XCameraBounds.y / xSpawnOffset),
+			x: Mathf.Lerp(cameraBounds.XCameraBounds.x, cameraBounds.XCameraBounds.y, playerConfig.spawnXOffset / 100.0f),
 			y: GameManager.terrainSpawnPosition.y + (terrainScaleY / 2.0f) + (playerGameObject.transform.localScale.y / 2.0f),
 			z: GameManager.terrainSpawnPosition.z
 		));
 
-		CustomBehaviourAssetsDatabase.Register(new PlayerComponent(playerGameObject));//, spawnPosition));
+		CustomBehaviourAssetsDatabase.Register(new PlayerComponent(playerGameObject));
 		if (!CustomBehaviourAssetsDatabase.IsRegistered(playerGameObject))
 		{
 			Debug.LogError("Failed to register PlayerComponent to Database.");
