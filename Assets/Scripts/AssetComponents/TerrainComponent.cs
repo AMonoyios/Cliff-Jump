@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using CollisionDetection;
 using UnityEngine;
 using Utils;
 
@@ -9,8 +10,8 @@ public class TerrainConfigure
     public float startSpeed = 0.5f;
     [Range(0.5f, 3.0f)]
     public float maxSpeed = 2.5f;
-    [Range(0.00001f, 0.00151f)]
-    public float speedIncreasePerFrame = 0.00075f;
+    [Range(0.0f, 0.0025f)]
+    public float speedIncreasePerFrame = 0.00125f;
     [Range(0.0f, 1.0f)]
     public float chanceForHeightChange = 0.5f;
     public Vector2 heightOffset = new(-0.25f, 0.25f);
@@ -20,13 +21,13 @@ public sealed class TerrainComponent : IBehaviour
 {
     public GameObject GetGameObject { get; }
 
-    public float CurrentSpeed { get; }
-    public float MaxSpeed { get; }
-    public float SpeedIncrease { get; }
-    public float ChanceForHeightChange { get; }
-    public Vector2 HeightOffset { get; }
+    private float CurrentSpeed { get; set; }
+    private float MaxSpeed { get; }
+    private float SpeedIncrease { get; }
+    private float ChanceForHeightChange { get; }
+    private Vector2 HeightOffset { get; }
 
-    public bool collided = false;
+    private bool collided = false;
 
     public TerrainComponent(GameObject gameObject, TerrainConfigure terrainConfigure)
     {
@@ -41,14 +42,29 @@ public sealed class TerrainComponent : IBehaviour
 
     public void Update()
     {
-        // GetGameObject.transform.Translate((CurrentSpeed > MaxSpeed ? MaxSpeed : CurrentSpeed += SpeedIncrease) * Time.deltaTime * -Vector3.right);
+        float speed = CurrentSpeed > MaxSpeed ? MaxSpeed : CurrentSpeed += SpeedIncrease;
+        GetGameObject.transform.Translate(speed * Time.deltaTime * -Vector3.right);
+
+        if (collided)
+        {
+            collided = false;
+            Respawn();
+        }
     }
 
-    // Note: this runs in fixed update of the camera
-    public void Respawn()
+    public void FixedUpdate()
     {
-        string log = $"Respawning {GetGameObject.transform.name}";
+        Transform cameraTransform = GameManager.cameraColliderComponent.GetGameObject.transform;
 
+        bool collided = CollisionCheck.BoxToBox(GetGameObject.transform, cameraTransform);
+        bool activeGO = cameraTransform.gameObject.activeSelf;
+        bool onLeftSide = GetGameObject.transform.position.x < cameraTransform.transform.position.x;
+
+        this.collided = !collided && activeGO && onLeftSide;
+    }
+
+    private void Respawn()
+    {
         Vector3 newPosition = GameManager.terrainSpawnPosition;
         if (Random.Range(0.01f, 1.0f) <= ChanceForHeightChange)
         {
@@ -58,20 +74,16 @@ public sealed class TerrainComponent : IBehaviour
                 y: newPosition.y + Random.Range(HeightOffset.x, HeightOffset.y),
                 z: newPosition.z
             );
-
-            log += $" with new position: {newPosition}";
         }
 
         GetGameObject.transform.position = newPosition;
-
-        Debug.Log(log);
     }
 
     public void OnDrawGizmos()
     {
         if (collided)
-        {
+            GizmosExtra.DrawSphereAboveObject(GetGameObject.transform, Color.green);
+        else
             GizmosExtra.DrawSphereAboveObject(GetGameObject.transform, Color.red);
-        }
     }
 }

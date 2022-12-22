@@ -7,20 +7,24 @@ namespace CollisionDetection
     public static class CollisionCheck
     {
         // AABB vs AABB collision check
-        // FIXME: don't seem to work correclty
+        // TODO: Clean up required
         public static bool BoxToBox(Transform box1, Transform box2)
         {
-            float xPositionDistance = Mathf.Abs(box1.position.x) + Mathf.Abs(box2.position.x);
-            float yPositionDistance = Mathf.Abs(box1.position.y) + Mathf.Abs(box2.position.y);
-            float zPositionDistance = Mathf.Abs(box1.position.z) + Mathf.Abs(box2.position.z);
+            float xAxisPositionDifference = Mathf.Abs(box1.position.x - box2.position.x);
+            float yAxisPositionDifference = Mathf.Abs(box1.position.y - box2.position.y);
+            float zAxisPositionDifference = Mathf.Abs(box1.position.z - box2.position.z);
 
-            float xScaleDistance = (box1.localScale.x / 2.0f) + (box2.localScale.x / 2.0f);
-            float yScaleDistance = (box1.localScale.y / 2.0f) + (box2.localScale.y / 2.0f);
-            float zScaleDistance = (box1.localScale.z / 2.0f) + (box2.localScale.z / 2.0f);
+            float xScaleDistance = (box1.localScale.x + box2.localScale.x) / 2.0f;
+            float yScaleDistance = (box1.localScale.y + box2.localScale.y) / 2.0f;
+            float zScaleDistance = (box1.localScale.z + box2.localScale.z) / 2.0f;
 
-            return  (xPositionDistance <= xScaleDistance) ||
-                    (yPositionDistance <= yScaleDistance) ||
-                    (zPositionDistance <= zScaleDistance);
+            bool xCollision = xAxisPositionDifference <= xScaleDistance;
+            bool yCollision = yAxisPositionDifference <= yScaleDistance;
+            bool zCollision = zAxisPositionDifference <= zScaleDistance;
+
+            return  xCollision &&
+                    yCollision &&
+                    zCollision;
         }
 
         // AABB vs Sphere collision check (Untested)

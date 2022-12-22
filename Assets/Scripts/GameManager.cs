@@ -2,7 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.InteropServices.WindowsRuntime;
 using UnityEngine;
-using Utils;
 
 public sealed class GameManager : MonoBehaviour
 {
@@ -16,10 +15,12 @@ public sealed class GameManager : MonoBehaviour
     [SerializeField]
     private PlayerConfigure playerConfig;
 
-    private SetupManager scene;
-    private CameraComponent camera;
+    private SetupManager setupManager;
+    public static CameraColliderComponent cameraColliderComponent;
 
     public static Vector3 terrainSpawnPosition;
+
+    public static bool IsSetupDone = false;
 
     // Start is called before the first frame update
     private void Start()
@@ -31,49 +32,39 @@ public sealed class GameManager : MonoBehaviour
             .Add(SetupPlayer)
             .Condition((value) => value)
             .Execute()
-            .OnComplete(() => Debug.Log("Finished game init."));
+            .OnComplete(() =>
+                {
+                    IsSetupDone = true;
+                    Debug.Log("Finished game init.");
+                });
     }
 
 #region InitGame
     private bool InitScene()
 	{
-        scene = new(setupAssets);
-        if (scene == null)
-        {
-            Debug.LogError("Scene is null!");
-            return false;
-        }
-        return true;
+        setupManager = new(setupAssets);
+        return setupManager != null;
 	}
     private bool SetupCamera()
     {
-        camera = new();
-
-        return camera.SetupCamera();
+        return setupManager.SetupCamera(Camera.main);
     }
     private bool SetupTerrain()
 	{
-        if (!scene.SetupTerrain(setupAssets, terrainConfig))
-        {
-            Debug.LogError("Terrain failed to setup!");
-            return false;
-        }
-        return true;
+        return setupManager.SetupTerrain(setupAssets, terrainConfig);
 	}
     private bool SetupPlayer()
     {
-        if (!scene.SetupPlayer(playerConfig.x))
-        {
-            Debug.LogError("Player failed to setup!");
-            return false;
-        }
-        return true;
+        return setupManager.SetupPlayer(StringRepo.Assets.Player, playerConfig);
 	}
 #endregion
 
 #region GameEngine life cycles
     private void Update()
     {
+        if (!IsSetupDone)
+            return;
+
         foreach (IBehaviour asset in CustomBehaviourAssetsDatabase.Values)
         {
             if (asset.GetGameObject != null && asset.GetGameObject.activeSelf)
@@ -83,6 +74,9 @@ public sealed class GameManager : MonoBehaviour
 
     private void FixedUpdate()
     {
+        if (!IsSetupDone)
+            return;
+
         foreach (IBehaviour asset in CustomBehaviourAssetsDatabase.Values)
         {
             if (asset.GetGameObject != null && asset.GetGameObject.activeSelf)
@@ -95,6 +89,9 @@ public sealed class GameManager : MonoBehaviour
     #if UNITY_EDITOR
     private void OnDrawGizmos()
     {
+        if (!IsSetupDone)
+            return;
+
         foreach (IBehaviour asset in CustomBehaviourAssetsDatabase.Values)
         {
             if (asset.GetGameObject != null && asset.GetGameObject.activeSelf)
@@ -104,6 +101,9 @@ public sealed class GameManager : MonoBehaviour
 
     private void OnDrawGizmosSelected()
     {
+        if (!IsSetupDone)
+            return;
+
         foreach (IBehaviour asset in CustomBehaviourAssetsDatabase.Values)
         {
             if (asset.GetGameObject != null && asset.GetGameObject.activeSelf)

@@ -80,5 +80,21 @@ namespace Utils
                                		target.position.z);
         	Gizmos.DrawSphere(gizmoPos, 0.25f);
 		}
+
+		public static void DrawOutlinedCube(Transform target, Color facesColor, Color edgesColor)
+		{
+			Gizmos.color = facesColor;
+        	Gizmos.DrawCube(target.position, target.localScale);
+        	Gizmos.color = edgesColor;
+        	Gizmos.DrawWireCube(target.position, target.localScale);
+		}
+	}
+
+	public static class ColorExtra
+	{
+		public static Color Brown
+		{
+			get { return new Color(0.5f, 0.25f, 0.016f, 1.0f); }
+		}
 	}
 }

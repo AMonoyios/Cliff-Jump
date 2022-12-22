@@ -4,9 +4,26 @@ using System.Collections.Generic;
 using UnityEngine;
 using Utils;
 
+public class CameraBounds
+{
+    public Vector2 XCameraBounds { get; }
+    public Vector2 YCameraBounds { get; }
+    public Vector2 ZCameraBounds { get; }
+
+    public CameraBounds(Vector2 xBounds, Vector2 yBounds, Vector2 zBounds)
+    {
+        XCameraBounds = xBounds;
+        YCameraBounds = yBounds;
+        ZCameraBounds = zBounds;
+    }
+}
+
 public class SetupManager
 {
 	private readonly Transform sceneTransform;
+
+	private CameraBounds cameraBounds;
+	private float terrainScaleY;
 
 	public SetupManager(List<SetupAsset> setupAssets)
 	{
@@ -36,47 +53,128 @@ public class SetupManager
 
 			Pool.Add(asset.id, objectPool);
 		}
+
+		Debug.Log("SetupManager initialized.");
 	}
+
+	public bool SetupCamera(Camera camera)
+    {
+        if (camera == null)
+        {
+            Debug.LogError("Camera is null or missing");
+            return false;
+        }
+
+        Plane[] planes = GeometryUtility.CalculateFrustumPlanes(camera);
+        if (planes.Length < 6)
+        {
+            Debug.LogError("Planes did not add up to 6 faces, unable to create bound box.");
+            return false;
+        }
+
+        Vector3 boundBoxScale = new
+        (
+            x: Vector3.Distance(-planes[0].normal * planes[0].distance, -planes[1].normal * planes[1].distance),
+            y: Vector3.Distance(-planes[2].normal * planes[2].distance, -planes[3].normal * planes[3].distance),
+            z: Vector3.Distance(-planes[4].normal * planes[4].distance, -planes[5].normal * planes[5].distance)
+        );
+
+        Bounds cameraColliderBounds = new(Vector3.zero, Vector3.zero);
+        for (int i = 0; i < 6; ++i)
+        {
+            cameraColliderBounds.Encapsulate(-planes[i].normal * planes[i].distance);
+        }
+
+        GameObject cameraColliderGameObject = Create.NewGameObject("CameraCollisionArea", cameraColliderBounds.center, Quaternion.identity, boundBoxScale, camera.gameObject.transform);
+
+		cameraBounds = new CameraBounds
+		(
+			xBounds: new(cameraColliderGameObject.transform.position.x - (cameraColliderGameObject.transform.localScale.x / 2.0f), cameraColliderGameObject.transform.position.x + (cameraColliderGameObject.transform.localScale.x / 2.0f)),
+			yBounds: new(cameraColliderGameObject.transform.position.y - (cameraColliderGameObject.transform.localScale.y / 2.0f), cameraColliderGameObject.transform.position.y + (cameraColliderGameObject.transform.localScale.y / 2.0f)),
+			zBounds: new(cameraColliderGameObject.transform.position.z - (cameraColliderGameObject.transform.localScale.z / 2.0f), cameraColliderGameObject.transform.position.z + (cameraColliderGameObject.transform.localScale.z / 2.0f))
+		);
+
+        GameManager.cameraColliderComponent = CustomBehaviourAssetsDatabase.Register(new CameraColliderComponent(cameraColliderGameObject));
+        if (CustomBehaviourAssetsDatabase.IsRegistered(cameraColliderGameObject))
+            Debug.Log("Camera collider registered.");
+
+        Debug.Log("successfully setup camera collider gameobject.");
+
+        return true;
+    }
 
 	public bool SetupTerrain(List<SetupAsset> setupAssets, TerrainConfigure terrainConfigure)
 	{
 		GameObject terrainTilePrefab = setupAssets.FindById(StringRepo.Assets.Terrain).prefab;
 		if (!terrainTilePrefab || sceneTransform == null)
+		{
+			Debug.LogError("Terrain prefab is NULL!");
 			return false;
+		}
 
+		terrainScaleY = terrainTilePrefab.transform.localScale.y;
+
+		// TODO: use cameraBounds rather than ViewportToWorldPoint
 		Vector3 lowerRightCorner = Camera.main.ViewportToWorldPoint(new Vector3(1.0f, 0.0f, -Camera.main.transform.position.z));
 		Vector3 lowerLeftCorner = Camera.main.ViewportToWorldPoint(new Vector3(0.0f, 0.0f, -Camera.main.transform.position.z));
 
 		Vector3 spawnPos = new
 		(
-			lowerRightCorner.x + terrainTilePrefab.transform.localScale.x,
-			lowerRightCorner.y + (terrainTilePrefab.transform.localScale.y / 2.0f),
-			lowerRightCorner.z
+			x: lowerRightCorner.x + terrainTilePrefab.transform.localScale.x,
+			y: lowerRightCorner.y + (terrainTilePrefab.transform.localScale.y / 2.0f),
+			z: lowerRightCorner.z
 		);
+		GameManager.terrainSpawnPosition = spawnPos;
 
 		if (!Pool.ContainsKey(StringRepo.Assets.Terrain))
+		{
+			Debug.LogError("Pool does not contain Terrain asset.");
 			return false;
+		}
 
-		List<GameObject> pooledTerrain = new();
 		for (int i = 0; spawnPos.x >= lowerLeftCorner.x; i++)
 		{
-			pooledTerrain.Add(Pool.Spawn(StringRepo.Assets.Terrain, spawnPos, Quaternion.identity));
+			GameObject newTerrainGameObject = Pool.Spawn(StringRepo.Assets.Terrain, spawnPos, Quaternion.identity);
 			spawnPos = new(spawnPos.x - terrainTilePrefab.transform.localScale.x, spawnPos.y, spawnPos.z);
+
+			CustomBehaviourAssetsDatabase.Register(new TerrainComponent(newTerrainGameObject, terrainConfigure));
 		}
 
-        foreach (GameObject terrain in pooledTerrain)
-		{
-			CustomBehaviourAssetsDatabase.Register(new TerrainComponent(terrain, terrainConfigure));
-		}
+		Debug.Log("Terrain setup successfully.");
 
 		return true;
 	}
 
-	public bool SetupPlayer(float x)
+	// FIXME: this requires work
+	public bool SetupPlayer(string playerID, PlayerConfigure playerConfig)
 	{
-		//float xSpawnPos = (Mathf.Abs(xAxisBounds.x) - Mathf.Abs(xAxisBounds.y)) / x;
+		if (!Pool.ContainsKey(playerID))
+		{
+			Debug.LogError("Player ID does not exist in pool.");
+			return false;
+		}
 
-		//Pool.Spawn("Pou", new(xSpawnPos, yAxisTerrainSpawn + 3.0f, zAxisTerrainSpawn), Quaternion.identity);
+		GameObject playerGameObject = Pool.Spawn(playerID, Vector3.zero, Quaternion.identity);
+
+		float boundsDiff = Mathf.Abs(cameraBounds.XCameraBounds.x - cameraBounds.XCameraBounds.y);
+		Create.NewGameObject("boundDiff", new Vector3(boundsDiff, 0,0), Quaternion.identity, Vector3.one);
+
+		float xPos = 0.0f;
+		playerGameObject.transform.position = (new
+		(
+			x: xPos,//(cameraBounds.XCameraBounds.y / xSpawnOffset),
+			y: GameManager.terrainSpawnPosition.y + (terrainScaleY / 2.0f) + (playerGameObject.transform.localScale.y / 2.0f),
+			z: GameManager.terrainSpawnPosition.z
+		));
+
+		CustomBehaviourAssetsDatabase.Register(new PlayerComponent(playerGameObject));//, spawnPosition));
+		if (!CustomBehaviourAssetsDatabase.IsRegistered(playerGameObject))
+		{
+			Debug.LogError("Failed to register PlayerComponent to Database.");
+			return false;
+		}
+
+		Debug.Log("Player setup successfully.");
 
 		return true;
 	}
