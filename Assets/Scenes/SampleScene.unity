@@ -324,10 +324,12 @@ MonoBehaviour:
     size: 1
     parentName: Scene
   terrainConfig:
-    startSpeed: 1
-    maxSpeed: 1
-    speedIncreasePerFrame: 0
-    chanceForHeightChange: 0.5
-    heightOffset: {x: -0.25, y: 2}
+    variableSpeed: 1
+    speed: 1
+    minMaxSpeed: {x: 3, y: 5}
+    acceleration: 0.000025
+    variableHeight: 0
+    chanceForHeightChange: 25
+    minMaxHeight: {x: -3.483869, y: 2.25}
   playerConfig:
     spawnXOffset: 25

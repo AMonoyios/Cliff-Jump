@@ -4,28 +4,16 @@ using CollisionDetection;
 using UnityEngine;
 using Utils;
 
-[System.Serializable]
-public class TerrainConfigure
-{
-    public float startSpeed = 0.5f;
-    [Range(0.5f, 3.0f)]
-    public float maxSpeed = 2.5f;
-    [Range(0.0f, 0.0025f)]
-    public float speedIncreasePerFrame = 0.00125f;
-    [Range(0.0f, 1.0f)]
-    public float chanceForHeightChange = 0.5f;
-    public Vector2 heightOffset = new(-0.25f, 0.25f);
-}
-
 public sealed class TerrainComponent : IBehaviour
 {
     public GameObject GetGameObject { get; }
 
-    private float CurrentSpeed { get; set; }
+    private float Speed { get; set; }
     private float MaxSpeed { get; }
-    private float SpeedIncrease { get; }
+    private float Acceleration { get; }
     private float ChanceForHeightChange { get; }
-    private Vector2 HeightOffset { get; }
+    private float MinHeight { get; }
+    private float MaxHeight { get; }
 
     private bool collided = false;
 
@@ -33,16 +21,26 @@ public sealed class TerrainComponent : IBehaviour
     {
         GetGameObject = gameObject;
 
-        CurrentSpeed = terrainConfigure.startSpeed;
-        MaxSpeed = terrainConfigure.maxSpeed;
-        SpeedIncrease = terrainConfigure.speedIncreasePerFrame;
-        ChanceForHeightChange = terrainConfigure.chanceForHeightChange;
-        HeightOffset = terrainConfigure.heightOffset;
+        Speed = terrainConfigure.variableSpeed ? terrainConfigure.minMaxSpeed.x : terrainConfigure.speed;
+        MaxSpeed = terrainConfigure.variableSpeed ? terrainConfigure.minMaxSpeed.y : terrainConfigure.speed;
+        Acceleration = terrainConfigure.variableSpeed ? terrainConfigure.acceleration : 0.0f;
+
+        // FIXME: does not take affect height
+        if (terrainConfigure.variableHeight)
+        {
+            ChanceForHeightChange = terrainConfigure.chanceForHeightChange;
+            if (ChanceForHeightChange > 0.0f)
+            {
+                MinHeight = terrainConfigure.minMaxHeight.x;
+                MaxHeight = terrainConfigure.minMaxHeight.y;
+            }
+        }
     }
 
     public void Update()
     {
-        float speed = CurrentSpeed > MaxSpeed ? MaxSpeed : CurrentSpeed += SpeedIncrease;
+        float speed = Speed > MaxSpeed ? MaxSpeed : Speed += Acceleration;
+
         GetGameObject.transform.Translate(speed * Time.deltaTime * -Vector3.right);
 
         if (collided)
@@ -58,6 +56,8 @@ public sealed class TerrainComponent : IBehaviour
 
         bool collided = CollisionCheck.BoxToBox(GetGameObject.transform, cameraTransform);
         bool activeGO = cameraTransform.gameObject.activeSelf;
+
+        // FIXME: if asset is under collider but at the right side it won't despawn
         bool onLeftSide = GetGameObject.transform.position.x < cameraTransform.transform.position.x;
 
         this.collided = !collided && activeGO && onLeftSide;
@@ -65,18 +65,14 @@ public sealed class TerrainComponent : IBehaviour
 
     private void Respawn()
     {
-        Vector3 newPosition = GameManager.terrainSpawnPosition;
-        if (Random.Range(0.01f, 1.0f) <= ChanceForHeightChange)
-        {
-            newPosition = new
-            (
-                x: newPosition.x,
-                y: newPosition.y + Random.Range(HeightOffset.x, HeightOffset.y),
-                z: newPosition.z
-            );
-        }
-
-        GetGameObject.transform.position = newPosition;
+        float heightOffset = Random.Range(0.1f, 1.0f).RoundToDecimals(1) < ChanceForHeightChange ? Random.Range(MinHeight, MaxHeight) : 0.0f;
+        Vector3 spawnPos = GameManager.terrainSpawnPosition;
+        GetGameObject.transform.position = new
+        (
+            x: spawnPos.x,
+            y: spawnPos.y + heightOffset,
+            z: spawnPos.z
+        );
     }
 
     public void OnDrawGizmos()
@@ -85,5 +81,11 @@ public sealed class TerrainComponent : IBehaviour
             GizmosExtra.DrawSphereAboveObject(GetGameObject.transform, Color.green);
         else
             GizmosExtra.DrawSphereAboveObject(GetGameObject.transform, Color.red);
+
+        if (Speed >= MaxSpeed)
+        {
+            Gizmos.color = Color.yellow;
+            Gizmos.DrawWireCube(GetGameObject.transform.position, GetGameObject.transform.localScale);
+        }
     }
 }

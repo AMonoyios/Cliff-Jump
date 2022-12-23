@@ -123,7 +123,7 @@ public class SetupManager
 		Vector3 spawnPos = new
 		(
 			x: lowerRightCorner.x + terrainTilePrefab.transform.localScale.x,
-			y: lowerRightCorner.y + (terrainTilePrefab.transform.localScale.y / 2.0f),
+			y: lowerRightCorner.y,// + (terrainTilePrefab.transform.localScale.y / 2.0f),
 			z: lowerRightCorner.z
 		);
 		GameManager.terrainSpawnPosition = spawnPos;

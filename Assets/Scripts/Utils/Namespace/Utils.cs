@@ -53,17 +53,10 @@ namespace Utils
 			return null;
 		}
 
-		public static Vector3 RoundToDecimals(this Vector3 value, int digits)
+		public static float RoundToDecimals(this float value, float precision, float threshold = 0.1f)
 		{
-			float mult = Mathf.Pow(10.0f, (float)digits);
-
-			return new
-			(
-				x: Mathf.Round(value.x * mult) / mult,
-				y: Mathf.Round(value.y * mult) / mult,
-				z: Mathf.Round(value.z * mult) / mult
-			);
-		}
+            return value > threshold ? Mathf.Floor(value / precision) * precision : value;
+        }
 	}
 
 	public static class GizmosExtra
@@ -95,6 +88,11 @@ namespace Utils
 		public static Color Brown
 		{
 			get { return new Color(0.5f, 0.25f, 0.016f, 1.0f); }
+		}
+
+		public static Color Orange
+		{
+			get { return new Color(1.0f, 0.55f, 0.1f, 1.0f); }
 		}
 	}
 }
