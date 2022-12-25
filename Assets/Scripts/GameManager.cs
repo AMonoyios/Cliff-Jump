@@ -14,9 +14,12 @@ public sealed class GameManager : MonoBehaviour
     private TerrainConfigure terrainConfig;
     [SerializeField]
     private PlayerConfigure playerConfig;
+    [SerializeField]
+    private PhysicsConfigure physicsConfig;
 
     private SetupManager setupManager;
     public static CameraColliderComponent cameraColliderComponent;
+    public static PlayerComponent playerComponent;
 
     public static Vector3 terrainSpawnPosition;
 
@@ -27,6 +30,7 @@ public sealed class GameManager : MonoBehaviour
     {
         new Promise<bool>()
             .Add(InitScene)
+            .Add(InitPhysics)
             .Add(SetupCamera)
             .Add(SetupTerrain)
             .Add(SetupPlayer)
@@ -45,6 +49,11 @@ public sealed class GameManager : MonoBehaviour
         setupManager = new(setupAssets);
         return setupManager != null;
 	}
+    private bool InitPhysics()
+    {
+        physicsConfig = new();
+        return physicsConfig != null;
+    }
     private bool SetupCamera()
     {
         return setupManager.SetupCamera(Camera.main);
@@ -55,7 +64,7 @@ public sealed class GameManager : MonoBehaviour
 	}
     private bool SetupPlayer()
     {
-        return setupManager.SetupPlayer(StringRepo.Assets.Player, playerConfig);
+        return setupManager.SetupPlayer(StringRepo.Assets.Player, playerConfig, physicsConfig);
 	}
 #endregion
 

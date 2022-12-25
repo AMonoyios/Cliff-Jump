@@ -1,7 +1,7 @@
 using UnityEngine;
 using System;
 
-[AttributeUsage(AttributeTargets.Field | AttributeTargets.Property | AttributeTargets.Class | AttributeTargets.Struct, Inherited = true)]
+[AttributeUsage(AttributeTargets.Field | AttributeTargets.Property | AttributeTargets.Class | AttributeTargets.Struct | AttributeTargets.Enum, Inherited = true)]
 public class ConditionalHideAttribute : PropertyAttribute
 {
     public string ConditionalSourceField = "";

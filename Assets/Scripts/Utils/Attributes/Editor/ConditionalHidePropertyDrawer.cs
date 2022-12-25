@@ -43,7 +43,20 @@ public class ConditionalHidePropertyDrawer : PropertyDrawer
 
         if (sourcePropertyValue != null)
         {
-            enabled = condHAtt.UseInverseOfConditionalSource ? !sourcePropertyValue.boolValue : sourcePropertyValue.boolValue;
+            if (sourcePropertyValue.propertyType == SerializedPropertyType.Enum)
+            {
+                bool isNegativeEnum = sourcePropertyValue.enumValueIndex > 0;
+                enabled = condHAtt.UseInverseOfConditionalSource ? !isNegativeEnum : isNegativeEnum;
+            }
+            else if (sourcePropertyValue.propertyType == SerializedPropertyType.Boolean)
+            {
+                enabled = condHAtt.UseInverseOfConditionalSource ? !sourcePropertyValue.boolValue : sourcePropertyValue.boolValue;
+            }
+            else
+            {
+                Debug.LogWarning("Conditional hide does not support " + sourcePropertyValue.propertyType.ToString());
+                enabled = false;
+            }
         }
         else
         {

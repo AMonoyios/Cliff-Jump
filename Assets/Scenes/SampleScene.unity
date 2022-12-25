@@ -317,19 +317,26 @@ MonoBehaviour:
   setupAssets:
   - id: Terrain
     prefab: {fileID: 3561961307481040097, guid: f7b49374f30d9364ab0bef9626a0c407, type: 3}
-    size: 15
+    size: 10
     parentName: TerrainCubeTile
   - id: Pou
     prefab: {fileID: 4392907085281444532, guid: bcc55514f12a1554cb85b036888ce5a5, type: 3}
     size: 1
     parentName: Scene
   terrainConfig:
-    variableSpeed: 1
+    scale: 3
+    variableSpeed: 0
     speed: 1
     minMaxSpeed: {x: 3, y: 5}
     acceleration: 0.000025
-    variableHeight: 0
-    chanceForHeightChange: 25
-    minMaxHeight: {x: -3.483869, y: 2.25}
+    variableHeight: 1
+    chanceForHeightChange: 100
+    minMaxHeight: {x: -0.75, y: 0.75}
   playerConfig:
+    scale: 0.1
     spawnXOffset: 25
+    jumpForce: 10
+  physicsConfig:
+    planet: 1
+    customGravity: -3.35
+    gravityScale: 3

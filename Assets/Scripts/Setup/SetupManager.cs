@@ -4,28 +4,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using Utils;
 
-public class CameraBounds
-{
-    public Vector2 XCameraBounds { get; }
-    public Vector2 YCameraBounds { get; }
-    public Vector2 ZCameraBounds { get; }
-
-    public CameraBounds(Vector2 xBounds, Vector2 yBounds, Vector2 zBounds)
-    {
-        XCameraBounds = xBounds;
-        YCameraBounds = yBounds;
-        ZCameraBounds = zBounds;
-    }
-}
-
 public class SetupManager
 {
 	private readonly Transform sceneTransform;
 
 	private CameraBounds cameraBounds;
 	private float terrainScaleY;
-
-	private const float playerScaleConst = 0.2f;
 
 	public SetupManager(List<SetupAsset> setupAssets)
 	{
@@ -105,7 +89,7 @@ public class SetupManager
         return true;
     }
 
-	public bool SetupTerrain(List<SetupAsset> setupAssets, TerrainConfigure terrainConfigure)
+	public bool SetupTerrain(List<SetupAsset> setupAssets, TerrainConfigure terrainConfig)
 	{
 		GameObject terrainTilePrefab = setupAssets.FindById(StringRepo.Assets.Terrain).prefab;
 		if (!terrainTilePrefab || sceneTransform == null)
@@ -120,10 +104,11 @@ public class SetupManager
 		Vector3 lowerRightCorner = Camera.main.ViewportToWorldPoint(new Vector3(1.0f, 0.0f, -Camera.main.transform.position.z));
 		Vector3 lowerLeftCorner = Camera.main.ViewportToWorldPoint(new Vector3(0.0f, 0.0f, -Camera.main.transform.position.z));
 
+		terrainTilePrefab.transform.localScale = new(terrainConfig.scale, terrainConfig.scale, terrainConfig.scale);
 		Vector3 spawnPos = new
 		(
 			x: lowerRightCorner.x + terrainTilePrefab.transform.localScale.x,
-			y: lowerRightCorner.y,// + (terrainTilePrefab.transform.localScale.y / 2.0f),
+			y: lowerRightCorner.y,
 			z: lowerRightCorner.z
 		);
 		GameManager.terrainSpawnPosition = spawnPos;
@@ -139,7 +124,7 @@ public class SetupManager
 			GameObject newTerrainGameObject = Pool.Spawn(StringRepo.Assets.Terrain, spawnPos, Quaternion.identity);
 			spawnPos = new(spawnPos.x - terrainTilePrefab.transform.localScale.x, spawnPos.y, spawnPos.z);
 
-			CustomBehaviourAssetsDatabase.Register(new TerrainComponent(newTerrainGameObject, terrainConfigure));
+			CustomBehaviourAssetsDatabase.Register(new TerrainComponent(newTerrainGameObject, terrainConfig));
 		}
 
 		Debug.Log("Terrain setup successfully.");
@@ -147,7 +132,7 @@ public class SetupManager
 		return true;
 	}
 
-	public bool SetupPlayer(string playerID, PlayerConfigure playerConfig)
+	public bool SetupPlayer(string playerID, PlayerConfigure playerConfig, PhysicsConfigure physicsConfig)
 	{
 		if (!Pool.ContainsKey(playerID))
 		{
@@ -157,7 +142,7 @@ public class SetupManager
 
 		GameObject playerGameObject = Pool.Spawn(playerID, Vector3.zero, Quaternion.identity);
 
-		float playerRelativeScreenScale = Mathf.Lerp(1, Mathf.Abs(cameraBounds.XCameraBounds.x - cameraBounds.XCameraBounds.y), playerScaleConst);
+		float playerRelativeScreenScale = Mathf.Lerp(1, Mathf.Abs(cameraBounds.XCameraBounds.x - cameraBounds.XCameraBounds.y), playerConfig.scale);
 		playerGameObject.transform.localScale = new(playerRelativeScreenScale, playerRelativeScreenScale, playerRelativeScreenScale);
 		playerGameObject.transform.position = (new
 		(
@@ -166,7 +151,8 @@ public class SetupManager
 			z: GameManager.terrainSpawnPosition.z
 		));
 
-		CustomBehaviourAssetsDatabase.Register(new PlayerComponent(playerGameObject));
+		GameManager.playerComponent = new PlayerComponent(playerGameObject, playerConfig, physicsConfig);
+		CustomBehaviourAssetsDatabase.Register(GameManager.playerComponent);
 		if (!CustomBehaviourAssetsDatabase.IsRegistered(playerGameObject))
 		{
 			Debug.LogError("Failed to register PlayerComponent to Database.");

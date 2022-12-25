@@ -57,6 +57,32 @@ namespace Utils
 		{
             return value > threshold ? Mathf.Floor(value / precision) * precision : value;
         }
+
+		public static TerrainComponent GetClosestTerrainComponent(this Transform terrainTransform)
+		{
+			TerrainComponent closest = null;
+			float minDistance = Mathf.Infinity;
+			Vector3 currentPosition = terrainTransform.position;
+
+			foreach (IBehaviour behaviour in CustomBehaviourAssetsDatabase.Values)
+			{
+				TerrainComponent terrain = CustomBehaviourAssetsDatabase.GetBehaviour<TerrainComponent>(behaviour.GetGameObject);
+				if (terrain == null)
+					continue;
+
+				float distance = Vector3.Distance(terrain.GetGameObject.transform.position, currentPosition);
+				if (distance < minDistance)
+				{
+					closest = terrain;
+					minDistance = distance;
+				}
+			}
+
+			if (closest == null)
+				Debug.LogError($"Failed to find the closest terrain component from {terrainTransform.gameObject.name}");
+
+			return closest;
+		}
 	}
 
 	public static class GizmosExtra
