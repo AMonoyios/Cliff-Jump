@@ -107,6 +107,24 @@ namespace Utils
         	Gizmos.color = edgesColor;
         	Gizmos.DrawWireCube(target.position, target.localScale);
 		}
+
+		public static void DrawYLevelLine(Transform target, float yLevel, Color color)
+		{
+			Gizmos.color = color;
+			Vector3 leftPoint = new
+			(
+				x: target.position.x - (target.localScale.x / 2.0f),
+				y: yLevel,
+				z: target.position.z
+			);
+			Vector3 rightPoint = new
+			(
+				x: target.position.x + (target.localScale.x / 2.0f),
+				y: yLevel,
+				z: target.position.z
+			);
+			Gizmos.DrawLine(leftPoint, rightPoint);
+		}
 	}
 
 	public static class ColorExtra

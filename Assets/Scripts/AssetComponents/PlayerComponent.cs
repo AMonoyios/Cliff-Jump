@@ -1,26 +1,32 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using CollisionDetection;
 using Utils;
 
+// Behaviour component for Player
 public class PlayerComponent : IBehaviour
 {
 	public GameObject GetGameObject { get; }
 
+	// References to config settings
 	public PlayerConfigure PlayerConfig { get; }
 	public TerrainComponent ClosestTerrainComponent { get; private set; }
 	private PhysicsConfigure PhysicsConfig { get; }
+
+	#region Variables and conditions
+	private int jumpCount = 1;
 
 	private bool isColliding;
 	private float feetLevel;
 	private float stepLevel;
 	private float groundLevel;
 	private bool isGrounded;
+
 	private bool gameOver;
 
 	private float velocity;
+	#endregion
 
+	// Constructor for Player behaviour
 	public PlayerComponent(GameObject playerGameObject, PlayerConfigure playerConfig, PhysicsConfigure physicsConfig)
 	{
 		GetGameObject = playerGameObject;
@@ -37,41 +43,51 @@ public class PlayerComponent : IBehaviour
 	{
 		UpdateGravity();
 
+		// Player controls
 		if (Input.touchCount > 0)
 		{
 			Touch touch  = Input.GetTouch(0);
 
-			if (touch.phase == TouchPhase.Stationary)
+			// Jump(s) condition
+			if (touch.phase == TouchPhase.Began && jumpCount < PlayerConfig.maxJumps)
 			{
-				Jump();
+				jumpCount++;
+				velocity = PlayerConfig.jumpForce;
 			}
 		}
 
-		ApplyPhysics();
+		// jump(s) count reset
+		if (isGrounded && jumpCount != 0)
+			jumpCount = 1;
+
+		// Move player depending on new velocity calculated
+		GetGameObject.transform.Translate(new Vector3(0.0f, velocity, 0.0f) * Time.deltaTime);
 	}
 
 	public void FixedUpdate()
 	{
-		ClosestTerrainComponent = GetGameObject.transform.GetClosestTerrainComponent();
+		if (ClosestTerrainComponent != GetGameObject.transform.GetClosestTerrainComponent())
+		{
+			GameManager.Score++;
+			ClosestTerrainComponent = GetGameObject.transform.GetClosestTerrainComponent();
+		}
 
 		isColliding = CollisionCheck.BoxToSphere(ClosestTerrainComponent.GetGameObject.transform, GetGameObject.transform);
-		feetLevel = GetGameObject.transform.position.y - (GetGameObject.transform.localScale.y / 2.0f);
-		groundLevel = ClosestTerrainComponent.GetGameObject.transform.position.y + (ClosestTerrainComponent.GetGameObject.transform.localScale.y / 2.0f);
 
+		feetLevel = GetGameObject.transform.position.y - (GetGameObject.transform.localScale.y / 2.0f);
+		stepLevel = feetLevel + PlayerConfig.stepThreshold;
+		groundLevel = ClosestTerrainComponent.GetGameObject.transform.position.y + (ClosestTerrainComponent.GetGameObject.transform.localScale.y / 2.0f);
         isGrounded = isColliding && groundLevel >= feetLevel;
 
-		stepLevel = feetLevel + PlayerConfig.stepThreshold;
-		bool canStep = isGrounded && groundLevel >= stepLevel;
-		gameOver = isColliding && !canStep;
-
-		// FIXME: step functionality (glitchy)
-		// stepLevel = groundLevel + PlayerConfig.stepThreshold;
-		// bool canStep = feetLevel + PlayerConfig.stepThreshold + 0.1f <= stepLevel;
-        // gameOver = isColliding && !canStep;
-
-		// if (feetLevel + PlayerConfig.stepThreshold <= stepLevel && isGrounded)
+		// FIXME: Step functionality is glitchy
+		// bool canStep = groundLevel < stepLevel && Mathf.Approximately(velocity, 0.0f);
+		// if (canStep)
 		// 	velocity = 1.0f;
-    }
+
+        gameOver = groundLevel > stepLevel;
+		if (gameOver)
+        	GameManager.GameOver = true;
+	}
 
 	private void UpdateGravity()
 	{
@@ -82,16 +98,6 @@ public class PlayerComponent : IBehaviour
 		}
 	}
 
-	private void Jump()
-	{
-		velocity = PlayerConfig.jumpForce;
-	}
-
-	private void ApplyPhysics()
-	{
-		GetGameObject.transform.Translate(new Vector3(0.0f, velocity, 0.0f) * Time.deltaTime);
-	}
-
 	public void OnDrawGizmos()
 	{
 		if (isGrounded)
@@ -99,44 +105,11 @@ public class PlayerComponent : IBehaviour
 		else
 			GizmosExtra.DrawSphereAboveObject(GetGameObject.transform, Color.red);
 
-		#region FeetLevel line
-		Gizmos.color = Color.black;
-		Vector3 leftGroundPoint = new
-		(
-			x: GetGameObject.transform.position.x - (GetGameObject.transform.localScale.x / 2.0f),
-			y: feetLevel,
-			z: GetGameObject.transform.position.z
-		);
-		Vector3 rightGroundPoint = new
-		(
-			x: GetGameObject.transform.position.x + (GetGameObject.transform.localScale.x / 2.0f),
-			y: feetLevel,
-			z: GetGameObject.transform.position.z
-		);
-		Gizmos.DrawLine(leftGroundPoint, rightGroundPoint);
-		#endregion
-
-		#region StepLevel line
-		Gizmos.color = Color.blue;
-		Vector3 leftStepPoint = new
-		(
-			x: GetGameObject.transform.position.x - (GetGameObject.transform.localScale.x / 2.0f),
-			y: stepLevel,
-			z: GetGameObject.transform.position.z
-		);
-		Vector3 rightStepPoint = new
-		(
-			x: GetGameObject.transform.position.x + (GetGameObject.transform.localScale.x / 2.0f),
-			y: stepLevel,
-			z: GetGameObject.transform.position.z
-		);
-		Gizmos.DrawLine(leftStepPoint, rightStepPoint);
-		#endregion
+		GizmosExtra.DrawYLevelLine(GetGameObject.transform, feetLevel, Color.black);
+		GizmosExtra.DrawYLevelLine(GetGameObject.transform, stepLevel, Color.blue);
+		GizmosExtra.DrawYLevelLine(GetGameObject.transform, groundLevel, Color.grey);
 
 		if (gameOver)
-		{
-			Gizmos.color = Color.red;
-			Gizmos.DrawWireCube(GetGameObject.transform.position, GetGameObject.transform.localScale);
-		}
+			GizmosExtra.DrawOutlinedCube(GetGameObject.transform, Color.red / 3.0f, Color.red);
 	}
 }

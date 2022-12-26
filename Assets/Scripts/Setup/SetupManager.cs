@@ -1,48 +1,52 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Utils;
 
+// Class responsible for setups of classes and methods
 public class SetupManager
 {
 	private readonly Transform sceneTransform;
-
 	private CameraBounds cameraBounds;
 	private float terrainScaleY;
 
+	// Initialize of SetupManager
 	public SetupManager(List<SetupAsset> setupAssets)
 	{
+		// Creating a scene empty object in Scene (just for organization purposes)
         sceneTransform = Create.NewGameObject(StringRepo.Assets.Scene).transform;
 
+		// Loop through the list of Setup Assets and populate the Pool
 		foreach (SetupAsset asset in setupAssets)
 		{
 			Queue<GameObject> objectPool = new();
 
 			for (int i = 0; i < asset.size; i++)
 			{
-				GameObject newPrefab = Create.NewPrefab(asset.prefab);
+				GameObject newAsset = Create.NewPrefab(asset.prefab);
 
 				if (asset.parentName != "")
 				{
 					// FIXME: Refactor the way parent is fetched (Not efficient).
 					GameObject parent = GameObject.Find(asset.parentName);
-                    newPrefab.transform.parent = parent != null ?
+                    newAsset.transform.parent = parent != null ?
 						parent.transform :
 						Create.NewGameObject(asset.Name, sceneTransform).transform;
                 }
 
-				newPrefab.SetActive(false);
+				newAsset.SetActive(false);
 
-				objectPool.Enqueue(newPrefab);
+				// Enque the new Asset from the pool
+				objectPool.Enqueue(newAsset);
 			}
 
+			// Add the queue of Assets to the pool
 			Pool.Add(asset.id, objectPool);
 		}
 
 		Debug.Log("SetupManager initialized.");
 	}
 
+	// Setup camera
 	public bool SetupCamera(Camera camera)
     {
         if (camera == null)
@@ -51,6 +55,7 @@ public class SetupManager
             return false;
         }
 
+		// Fetch camera planes (must be 6: far plane, near plane, top plane, bottom plane, right plane, left plane)
         Plane[] planes = GeometryUtility.CalculateFrustumPlanes(camera);
         if (planes.Length < 6)
         {
@@ -58,6 +63,7 @@ public class SetupManager
             return false;
         }
 
+		// Get the distance between opposite planes to determine the scale of the camera view
         Vector3 boundBoxScale = new
         (
             x: Vector3.Distance(-planes[0].normal * planes[0].distance, -planes[1].normal * planes[1].distance),
@@ -65,12 +71,14 @@ public class SetupManager
             z: Vector3.Distance(-planes[4].normal * planes[4].distance, -planes[5].normal * planes[5].distance)
         );
 
+		// Encapsulate all planes to find the bounds
         Bounds cameraColliderBounds = new(Vector3.zero, Vector3.zero);
         for (int i = 0; i < 6; ++i)
         {
             cameraColliderBounds.Encapsulate(-planes[i].normal * planes[i].distance);
         }
 
+		// Create new gameobject with our new bounds in mind
         GameObject cameraColliderGameObject = Create.NewGameObject("CameraCollisionArea", cameraColliderBounds.center, Quaternion.identity, boundBoxScale, camera.gameObject.transform);
 
 		cameraBounds = new CameraBounds
@@ -80,6 +88,7 @@ public class SetupManager
 			zBounds: new(cameraColliderGameObject.transform.position.z - (cameraColliderGameObject.transform.localScale.z / 2.0f), cameraColliderGameObject.transform.position.z + (cameraColliderGameObject.transform.localScale.z / 2.0f))
 		);
 
+		// Create new Behaviour component for the new camera bounds and register it to our custom behaviour database
         GameManager.cameraColliderComponent = CustomBehaviourAssetsDatabase.Register(new CameraColliderComponent(cameraColliderGameObject));
         if (CustomBehaviourAssetsDatabase.IsRegistered(cameraColliderGameObject))
             Debug.Log("Camera collider registered.");
@@ -89,8 +98,10 @@ public class SetupManager
         return true;
     }
 
+	// Setup terrain
 	public bool SetupTerrain(List<SetupAsset> setupAssets, TerrainConfigure terrainConfig)
 	{
+		// Get the prefab reference from our Asset database
 		GameObject terrainTilePrefab = setupAssets.FindById(StringRepo.Assets.Terrain).prefab;
 		if (!terrainTilePrefab || sceneTransform == null)
 		{
@@ -104,6 +115,7 @@ public class SetupManager
 		Vector3 lowerRightCorner = Camera.main.ViewportToWorldPoint(new Vector3(1.0f, 0.0f, -Camera.main.transform.position.z));
 		Vector3 lowerLeftCorner = Camera.main.ViewportToWorldPoint(new Vector3(0.0f, 0.0f, -Camera.main.transform.position.z));
 
+		// Set the scale of the prefab and calculate the new spawn position of it
 		terrainTilePrefab.transform.localScale = new(terrainConfig.scale, terrainConfig.scale, terrainConfig.scale);
 		Vector3 spawnPos = new
 		(
@@ -119,11 +131,13 @@ public class SetupManager
 			return false;
 		}
 
+		// Loop from start position to "end" position and spawn assets from the Pool
 		for (int i = 0; spawnPos.x >= lowerLeftCorner.x; i++)
 		{
 			GameObject newTerrainGameObject = Pool.Spawn(StringRepo.Assets.Terrain, spawnPos, Quaternion.identity);
 			spawnPos = new(spawnPos.x - terrainTilePrefab.transform.localScale.x, spawnPos.y, spawnPos.z);
 
+			// Create a new behaviour for our new asset and then register it to our Database
 			CustomBehaviourAssetsDatabase.Register(new TerrainComponent(newTerrainGameObject, terrainConfig));
 		}
 
@@ -132,6 +146,7 @@ public class SetupManager
 		return true;
 	}
 
+	// Setup player
 	public bool SetupPlayer(string playerID, PlayerConfigure playerConfig, PhysicsConfigure physicsConfig)
 	{
 		if (!Pool.ContainsKey(playerID))
@@ -140,8 +155,10 @@ public class SetupManager
 			return false;
 		}
 
+		// Spawn player from the Asset Pool
 		GameObject playerGameObject = Pool.Spawn(playerID, Vector3.zero, Quaternion.identity);
 
+		// Calculate the scale/position of the player depending on the device screen
 		float playerRelativeScreenScale = Mathf.Lerp(1, Mathf.Abs(cameraBounds.XCameraBounds.x - cameraBounds.XCameraBounds.y), playerConfig.scale);
 		playerGameObject.transform.localScale = new(playerRelativeScreenScale, playerRelativeScreenScale, playerRelativeScreenScale);
 		playerGameObject.transform.position = (new
@@ -151,6 +168,7 @@ public class SetupManager
 			z: GameManager.terrainSpawnPosition.z
 		));
 
+		// Create new behaviour for new player and register it to our Custom behaviour database
 		GameManager.playerComponent = new PlayerComponent(playerGameObject, playerConfig, physicsConfig);
 		CustomBehaviourAssetsDatabase.Register(GameManager.playerComponent);
 		if (!CustomBehaviourAssetsDatabase.IsRegistered(playerGameObject))

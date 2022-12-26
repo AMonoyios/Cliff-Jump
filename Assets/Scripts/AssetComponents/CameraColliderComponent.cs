@@ -1,8 +1,7 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using Utils;
 
+// Class that holds bounds for camera collider
 public class CameraBounds
 {
     public Vector2 XCameraBounds { get; }
@@ -17,6 +16,7 @@ public class CameraBounds
     }
 }
 
+// Behaviour component for camera collider
 public class CameraColliderComponent : IBehaviour
 {
     public GameObject GetGameObject { get; }
@@ -26,8 +26,8 @@ public class CameraColliderComponent : IBehaviour
         GetGameObject = cameraColliderGameObject;
     }
 
-    // public void OnDrawGizmos()
-    // {
-    //     GizmosExtra.DrawOutlinedCube(GetGameObject.transform, Color.green / 3.0f, Color.green);
-    // }
+    public void OnDrawGizmos()
+    {
+        GizmosExtra.DrawOutlinedCube(GetGameObject.transform, Color.green / 3.0f, Color.green / 1.5f);
+    }
 }

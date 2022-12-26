@@ -11,8 +11,10 @@ public class PlayerConfigure
 	public float spawnXOffset = 50.0f;
 
 	[Space(GameManager.guiSpace)]
-	[Range(2.0f, 12.0f)]
-	public float jumpForce = 10.0f;
-	[Range(0.0f, 1.0f)]
-	public float stepThreshold = 0.1f;
+	[Range(4.0f, 15.0f)]
+	public float jumpForce = 8.0f;
+    [SerializeField, Range(1, 5)]
+    public int maxJumps = 2;
+	[Range(0.125f, 0.5f)]
+	public float stepThreshold = 0.25f;
 }

@@ -1,6 +1,11 @@
 using System;
 using System.Collections.Generic;
 
+// - Promise is a manager with collection of methods that is responsible to execute them in the correct order
+// taking into consideration the return type of each method and the condition of execution.
+// - As soon as one the methods breaks or stops for any reason all other methods do not execute and promise
+// is canceled.
+// Disclaimer: This is not a fully implemented promise system as it does not currently support async methods.
 public class Promise<T>
 {
     private bool finishedExecuting;

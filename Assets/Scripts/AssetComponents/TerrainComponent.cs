@@ -83,10 +83,10 @@ public sealed class TerrainComponent : IBehaviour
         // else
         //     GizmosExtra.DrawSphereAboveObject(GetGameObject.transform, Color.red);
 
-        // if (Speed >= MaxSpeed)
-        // {
-        //     Gizmos.color = Color.yellow;
-        //     Gizmos.DrawWireCube(GetGameObject.transform.position, GetGameObject.transform.localScale);
-        // }
+        if (Speed >= MaxSpeed)
+        {
+            Gizmos.color = Color.yellow;
+            Gizmos.DrawWireCube(GetGameObject.transform.position, GetGameObject.transform.localScale);
+        }
     }
 }
