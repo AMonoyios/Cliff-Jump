@@ -6,11 +6,11 @@ Single MonoBehavior challenge
 ## Requirements
 
 ### ToDo
-- Add player ability jump & double jump.
-- Implement a game-over trigger. (*3)
+- Add comments and gameplay testing/overview
+- Bug fixes and final polishings
 
 ### OnGoing
-- Implement player "walk" functionality.
+- Implement a game-over trigger. (*3)
 
 ### Done
 - Spawn objects to fill width of screen regardless the size/scale.
@@ -24,6 +24,8 @@ Single MonoBehavior challenge
 - Spawn terrain in different heights.
 - Implement a collision system. (*2)
 - Scale player to 20% of screen dynamically. (*4)
+- Implement player "walk" functionality.
+- Add player ability jump & double jump.
 
 ---
 

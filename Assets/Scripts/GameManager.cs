@@ -5,6 +5,8 @@ using UnityEngine;
 
 public sealed class GameManager : MonoBehaviour
 {
+    public const float guiSpace = 10.0f;
+
     [Header("Setup")]
     [SerializeField]
     private List<SetupAsset> setupAssets = new();

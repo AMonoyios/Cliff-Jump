@@ -330,7 +330,7 @@ MonoBehaviour:
     minMaxSpeed: {x: 3, y: 5}
     acceleration: 0.000025
     variableHeight: 1
-    chanceForHeightChange: 100
+    chanceForHeightChange: 50
     minMaxHeight: {x: -0.75, y: 0.75}
   playerConfig:
     scale: 0.1
