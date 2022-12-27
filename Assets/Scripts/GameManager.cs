@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using UnityEngine.UI;
 
 // The ONLY MonoBehaviour class that is responsible for all the game.
 public sealed class GameManager : MonoBehaviour
@@ -28,7 +29,9 @@ public sealed class GameManager : MonoBehaviour
     [SerializeField]
     private TextMeshProUGUI scoreTMP;
     [SerializeField]
-    private TextMeshProUGUI gameOverTMP;
+    private Transform gameOverPanel;
+    [SerializeField]
+    private Button restartGameBtn;
     #endregion
 
     #region Variables/States
@@ -50,6 +53,7 @@ public sealed class GameManager : MonoBehaviour
     {
         // Promise for game init to ensure the correct order of initializations.
         new Promise<bool>()
+            .Add(InitUI)
             .Add(InitScene)
             .Add(InitPhysics)
             .Add(SetupCamera)
@@ -65,6 +69,13 @@ public sealed class GameManager : MonoBehaviour
     }
 
 #region InitGame
+    private bool InitUI()
+    {
+        gameOverPanel.gameObject.SetActive(false);
+        restartGameBtn.onClick.AddListener(UIController.RestartGame);
+
+        return true;
+    }
     private bool InitScene()
 	{
         setupManager = new(setupAssets);
@@ -119,7 +130,7 @@ public sealed class GameManager : MonoBehaviour
             }
 
             scoreTMP.text = $"Score: {Score}";
-            if (GameOver) gameOverTMP.gameObject.SetActive(true);
+            if (GameOver) gameOverPanel.gameObject.SetActive(true);
         }
     }
 #endregion

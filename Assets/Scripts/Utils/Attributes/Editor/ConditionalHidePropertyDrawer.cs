@@ -1,46 +1,24 @@
 using UnityEngine;
 using UnityEditor;
 
+// - Attribute that helps readability and development in the editor. Has the ability to show and hide properties without the need to
+// create a new custom editor script for each class.
 [CustomPropertyDrawer(typeof(ConditionalHideAttribute))]
 public class ConditionalHidePropertyDrawer : PropertyDrawer
 {
     public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
     {
         ConditionalHideAttribute condHAtt = (ConditionalHideAttribute)attribute;
-        bool enabled = GetConditionalHideAttributeResult(condHAtt, property);
 
-        bool wasEnabled = GUI.enabled;
-        GUI.enabled = enabled;
-        if (!condHAtt.HideInInspector || enabled)
-        {
-            EditorGUI.PropertyField(position, property, label, true);
-        }
-
-        GUI.enabled = wasEnabled;
-    }
-
-    public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
-    {
-        ConditionalHideAttribute condHAtt = (ConditionalHideAttribute)attribute;
-        bool enabled = GetConditionalHideAttributeResult(condHAtt, property);
-
-        if (!condHAtt.HideInInspector || enabled)
-        {
-            return EditorGUI.GetPropertyHeight(property, label);
-        }
-        else
-        {
-            return -EditorGUIUtility.standardVerticalSpacing;
-        }
-    }
-
-    private bool GetConditionalHideAttributeResult(ConditionalHideAttribute condHAtt, SerializedProperty property)
-    {
         bool enabled = true;
-        string propertyPath = property.propertyPath; //returns the property path of the property we want to apply the attribute to
-        string conditionPath = propertyPath.Replace(property.name, condHAtt.ConditionalSourceField); //changes the path to the conditionalsource property path
+
+        // Returns the property path of the property we want to apply the attribute to
+        string propertyPath = property.propertyPath;
+        // Changes the path to the conditionalsource property path
+        string conditionPath = propertyPath.Replace(property.name, condHAtt.ConditionalSourceField);
         SerializedProperty sourcePropertyValue = property.serializedObject.FindProperty(conditionPath);
 
+        // Checking if the property has a valid Type
         if (sourcePropertyValue != null)
         {
             if (sourcePropertyValue.propertyType == SerializedPropertyType.Enum)
@@ -63,6 +41,13 @@ public class ConditionalHidePropertyDrawer : PropertyDrawer
             Debug.LogWarning("Attempting to use a ConditionalHideAttribute but no matching SourcePropertyValue found in object: " + condHAtt.ConditionalSourceField);
         }
 
-        return enabled;
+        bool wasEnabled = GUI.enabled;
+        GUI.enabled = enabled;
+        if (!condHAtt.HideInInspector || enabled)
+        {
+            EditorGUI.PropertyField(position, property, label, true);
+        }
+
+        GUI.enabled = wasEnabled;
     }
 }

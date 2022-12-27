@@ -1,5 +1,6 @@
 using UnityEngine;
 
+// Scene assets settings
 [System.Serializable]
 public class SetupAsset
 {

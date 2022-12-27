@@ -1,9 +1,10 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+// Namespace that holds all helper functions that improve development of make implementing stuff more convinient.
 namespace Utils
 {
+	// Class that has helper functions for creating new gameobjects in scene
 	public static class Create
 	{
 		public static GameObject NewGameObject(string name, Transform parent = null)
@@ -31,15 +32,16 @@ namespace Utils
 		public static GameObject NewPrefab(GameObject prefab, Vector3 position, Quaternion rotation, Vector3 scale, Transform parent = null)
 		{
 			GameObject newPrefab = Object.Instantiate(prefab, position, rotation, parent);
-
 			newPrefab.transform.localScale = scale;
 
 			return newPrefab;
 		}
 	}
 
+	// Class that holds extensions of data types. I used extensions in order to ensure the correct datatype mathing and prevent accidental call of methods from other data types.
 	public static class Extensions
 	{
+		// Method that finds specific asset from pool given a string id
 		public static SetupAsset FindById(this List<SetupAsset> setupAssets, string id)
 		{
 			foreach (SetupAsset asset in setupAssets)
@@ -53,11 +55,13 @@ namespace Utils
 			return null;
 		}
 
+		// Method that rounds floats with a given precision decimal
 		public static float RoundToDecimals(this float value, float precision, float threshold = 0.1f)
 		{
             return value > threshold ? Mathf.Floor(value / precision) * precision : value;
         }
 
+		// Method that finds the closest TerrainComponent for a given Transform
 		public static TerrainComponent GetClosestTerrainComponent(this Transform terrainTransform)
 		{
 			TerrainComponent closest = null;
@@ -85,6 +89,7 @@ namespace Utils
 		}
 	}
 
+	// Helper functions for gizmos (Only for editor use)
 	public static class GizmosExtra
 	{
 		public static void DrawSphereAboveObject(Transform target)

@@ -1,12 +1,14 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+// - This is the custom behaviour database.
+// - This is where all custom behaviour components are registered so they can be accessed later from any where in the code.
 public static class CustomBehaviourAssetsDatabase
 {
     private static readonly Dictionary<int, IBehaviour> behaviours = new();
     public static Dictionary<int, IBehaviour>.ValueCollection Values => behaviours.Values;
 
+    // Method that registers new custom behaviour components in the database
     public static T Register<T>(T behaviour) where T : class, IBehaviour
     {
         if (!behaviours.ContainsKey(behaviour.GetGameObject.GetHashCode()))
@@ -35,6 +37,7 @@ public static class CustomBehaviourAssetsDatabase
         return null;
     }
 
+    // Method that checks if a specific GameObject is already registered in the database or not
     public static bool IsRegistered(GameObject gameObject)
     {
         if (!behaviours.ContainsKey(gameObject.GetHashCode()))

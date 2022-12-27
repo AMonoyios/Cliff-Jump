@@ -21,6 +21,7 @@ public class CameraColliderComponent : IBehaviour
 {
     public GameObject GetGameObject { get; }
 
+    // Constructor for camera collider behaviour
     public CameraColliderComponent(GameObject cameraColliderGameObject)
     {
         GetGameObject = cameraColliderGameObject;

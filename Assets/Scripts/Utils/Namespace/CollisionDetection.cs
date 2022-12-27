@@ -1,7 +1,7 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
+// - Namespace that holds all collision cases
+// Disclaimer: Currently only 2 cases were needed for this project.
 namespace CollisionDetection
 {
     public static class CollisionCheck
@@ -28,7 +28,7 @@ namespace CollisionDetection
                     axisPositionDifference.z <= scaleDistance.z;
         }
 
-        // AABB vs Sphere collision check (Untested)
+        // AABB vs Sphere collision check
         public static bool BoxToSphere(Transform box, Transform sphere)
         {
             float sphereRadius = sphere.gameObject.transform.lossyScale.x / 2.0f;

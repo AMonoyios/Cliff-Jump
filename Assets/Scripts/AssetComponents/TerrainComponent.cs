@@ -17,6 +17,7 @@ public sealed class TerrainComponent : IBehaviour
 
     private bool outOfCameraBounds = false;
 
+    // Constructor for Terrain behaviour
     public TerrainComponent(GameObject gameObject, TerrainConfigure terrainConfigure)
     {
         GetGameObject = gameObject;
@@ -38,10 +39,11 @@ public sealed class TerrainComponent : IBehaviour
 
     public void Update()
     {
+        // Calculate and apply the terrain movement speed
         float speed = Speed > MaxSpeed ? MaxSpeed : Speed += Acceleration;
-
         GetGameObject.transform.Translate(speed * Time.deltaTime * -Vector3.right);
 
+        // Check if is currently out of bounds and then respawn it to the most right side
         if (outOfCameraBounds)
         {
             outOfCameraBounds = false;
@@ -53,21 +55,10 @@ public sealed class TerrainComponent : IBehaviour
     {
         Transform cameraTransform = GameManager.cameraColliderComponent.GetGameObject.transform;
 
+        // Checking is the terrain has left the camera view
         outOfCameraBounds = !CollisionCheck.BoxToBox(GetGameObject.transform, cameraTransform) &&
             cameraTransform.gameObject.activeSelf &&
             GetGameObject.transform.position.x < cameraTransform.transform.position.x - (cameraTransform.transform.localScale.x / 2.0f);
-    }
-
-    private void Respawn()
-    {
-        float heightOffset = Random.Range(0.1f, 1.0f).RoundToDecimals(1) < ChanceForHeightChange ? Random.Range(MinHeight, MaxHeight) : 0.0f;
-        Vector3 spawnPos = GameManager.terrainSpawnPosition;
-        GetGameObject.transform.position = new
-        (
-            x: spawnPos.x,
-            y: spawnPos.y + heightOffset,
-            z: spawnPos.z
-        );
     }
 
     public void OnDrawGizmos()
@@ -78,15 +69,23 @@ public sealed class TerrainComponent : IBehaviour
             Gizmos.DrawWireCube(GetGameObject.transform.position, GetGameObject.transform.localScale);
         }
 
-        // if (outOfCameraBounds)
-        //     GizmosExtra.DrawSphereAboveObject(GetGameObject.transform, Color.green);
-        // else
-        //     GizmosExtra.DrawSphereAboveObject(GetGameObject.transform, Color.red);
-
         if (Speed >= MaxSpeed)
         {
             Gizmos.color = Color.yellow;
             Gizmos.DrawWireCube(GetGameObject.transform.position, GetGameObject.transform.localScale);
         }
+    }
+
+    // Method that recycles the tile when it reaches out of left bounds of screen
+    private void Respawn()
+    {
+        float heightOffset = Random.Range(0.1f, 1.0f).RoundToDecimals(1) < ChanceForHeightChange ? Random.Range(MinHeight, MaxHeight) : 0.0f;
+        Vector3 spawnPos = GameManager.terrainSpawnPosition;
+        GetGameObject.transform.position = new
+        (
+            x: spawnPos.x,
+            y: spawnPos.y + heightOffset,
+            z: spawnPos.z
+        );
     }
 }

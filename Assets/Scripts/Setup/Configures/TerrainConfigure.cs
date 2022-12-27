@@ -1,5 +1,6 @@
 using UnityEngine;
 
+// Terrain settings
 [System.Serializable]
 public class TerrainConfigure
 {

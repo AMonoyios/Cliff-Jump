@@ -2,6 +2,7 @@ using UnityEditor;
 using UnityEngine;
 using Utils;
 
+// - Attribute that draws a vector 2 as a min max slider without the need of a custom editor for each class we want to have one.
 [CustomPropertyDrawer(typeof(MinMaxSliderAttribute))]
 public class MinToDrawer : PropertyDrawer
 {
@@ -107,15 +108,6 @@ public class MinToDrawer : PropertyDrawer
         }
     }
 
-    public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
-    {
-        int lines = 1;
-        if (property.propertyType == SerializedPropertyType.Float)
-            lines = 2;
-
-        return lines * EditorGUIUtility.singleLineHeight;
-    }
-
     public static Rect[] SplitRectIn3(Rect rect, int bordersSize, int space = 0)
     {
         Rect[] r = SplitRect(rect, 3);
@@ -127,6 +119,7 @@ public class MinToDrawer : PropertyDrawer
         r[2].x += ps;
         return r;
     }
+
     public static Rect[] SplitRect(Rect a, int n)
     {
         Rect[] r = new Rect[n];

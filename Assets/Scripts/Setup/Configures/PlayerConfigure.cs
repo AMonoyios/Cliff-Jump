@@ -1,5 +1,6 @@
 using UnityEngine;
 
+// Player settings
 [System.Serializable]
 public class PlayerConfigure
 {
