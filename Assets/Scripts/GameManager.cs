@@ -1,7 +1,9 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 // The ONLY MonoBehaviour class that is responsible for all the game.
 public sealed class GameManager : MonoBehaviour
@@ -72,7 +74,12 @@ public sealed class GameManager : MonoBehaviour
     private bool InitUI()
     {
         gameOverPanel.gameObject.SetActive(false);
-        restartGameBtn.onClick.AddListener(UIController.RestartGame);
+
+        if (restartGameBtn.onClick == null)
+        {
+            Debug.LogError("Restart button method is not assigned!");
+            return false;
+        }
 
         return true;
     }
@@ -162,4 +169,25 @@ public sealed class GameManager : MonoBehaviour
     }
     #endif
 #endregion
+
+    public void Restart()
+    {
+        StartCoroutine(RestartGameCoroutine());
+    }
+    private IEnumerator RestartGameCoroutine()
+    {
+        int sceneIndex = SceneManager.GetActiveScene().buildIndex;
+        AsyncOperation progress = SceneManager.LoadSceneAsync(sceneIndex);
+
+        while (!progress.isDone)
+        {
+            yield return null;
+        }
+
+        Debug.Log($"Restarting scene with index: {sceneIndex}");
+
+        Score = 0;
+        scoreTMP.text = $"Score: {Score}";
+        GameOver = false;
+    }
 }

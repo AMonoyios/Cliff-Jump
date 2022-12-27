@@ -3,15 +3,7 @@
 ## Introduction
 Single MonoBehavior challenge
 
-## Requirements
-
-### ToDo
-
-### OnGoing
-- Bug fixes and final polishings
-- Add comments and gameplay testing/overview
-
-### Done
+### Logs
 - Spawn objects to fill width of screen regardless the size/scale.
 - Can spawn 2D and 3D assets via settings scriptable object.
 - Used a tilted orthographic camera. (*1)
@@ -26,6 +18,12 @@ Single MonoBehavior challenge
 - Implement player "walk" functionality.
 - Add player ability jump & double jump.
 - Implement a game-over trigger. (*3)
+- Bug fixes and final polishings
+- Add comments and gameplay testing/overview
+
+### Bugs
+- Restart functionality is not working
+- Collision is not very accurate sometimes
 
 ---
 

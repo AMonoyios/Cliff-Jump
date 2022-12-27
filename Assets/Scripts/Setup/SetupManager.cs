@@ -15,6 +15,9 @@ public class SetupManager
 		// Creating a scene empty object in Scene (just for organization purposes)
         sceneTransform = Create.NewGameObject(StringRepo.Assets.Scene).transform;
 
+		// Reset pool
+		Pool.ClearPool();
+
 		// Loop through the list of Setup Assets and populate the Pool
 		foreach (SetupAsset asset in setupAssets)
 		{

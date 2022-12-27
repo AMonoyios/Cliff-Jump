@@ -48,4 +48,9 @@ public static class Pool
 
         return true;
     }
+
+    public static void ClearPool()
+    {
+        poolDictionary.Clear();
+    }
 }
