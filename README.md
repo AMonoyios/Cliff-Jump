@@ -1,7 +1,10 @@
-# Cliff-Jump
+# Endless runner Challenge
 
 ## Introduction
-Single MonoBehavior challenge
+A challenge of a single MonoBehaviour script + no build-in (Unity) librabies used. Create a game that has a meaning, goal and end all in just one MonoBehaviour script. In this project i had the chance to work with promise systems, implement a basic engine pipeline from scratch and develop all physics calculations from scratch.
+
+### Update
+- After deadline ended i chose to keep working on the project due to finding the limitations very interesting, there will be a version 2 released soon (as we all say) in my github page
 
 ### Logs
 - Spawn objects to fill width of screen regardless the size/scale.
